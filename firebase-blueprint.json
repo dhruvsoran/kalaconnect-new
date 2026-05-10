@@ -1,0 +1,100 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stored user information including role and artisan details.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["buyer", "artisan", "admin"],
+          "description": "The user's role on the platform."
+        },
+        "location": {
+          "type": "string",
+          "description": "City or region of the user."
+        },
+        "story": {
+          "type": "string",
+          "description": "The artisan's personal story or bio."
+        },
+        "heritage": {
+          "type": "string",
+          "description": "Cultural heritage associated with the artisan's craft."
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Data URI or URL of the user's profile picture."
+        },
+        "followingCount": {
+          "type": "number"
+        },
+        "followersCount": {
+          "type": "number"
+        }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Artisan product details.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "string" },
+        "stock": { "type": "number" },
+        "image": { "type": "string" },
+        "artisanId": { "type": "string" },
+        "artisanName": { "type": "string" },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Active", "Draft", "Archived"] }
+      }
+    },
+    "Comment": {
+      "title": "Comment",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Individual user profile documents."
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Marketplace products."
+    },
+    "/products/{productId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "User comments on products."
+    },
+    "/users/{userId}/following/{followedUserId}": {
+      "schema": "object",
+      "description": "Tracks who a user follows."
+    },
+    "/orders/{orderId}": {
+      "schema": "object",
+      "description": "Platform orders for admin review."
+    }
+  }
+}

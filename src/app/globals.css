@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 20 20% 98%;
+    --foreground: 20 5% 25%;
+    --card: 20 10% 96% / 0.8;
+    --card-foreground: 20 5% 25%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 5% 25%;
+    --primary: 210 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 20 15% 90%;
+    --secondary-foreground: 20 5% 25%;
+    --muted: 20 15% 90%;
+    --muted-foreground: 20 5% 45%;
+    --accent: 210 80% 65%;
+    --accent-foreground: 20 5% 15%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 20 10% 90%;
+    --input: 20 10% 90%;
+    --ring: 210 80% 55%;
+    --radius: 0.75rem;
+
+    --chart-1: 210 70% 50%;
+    --chart-2: 20 70% 50%;
+    --chart-3: 150 70% 40%;
+    --chart-4: 45 70% 50%;
+    --chart-5: 300 70% 50%;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 4% / 0.7;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 210 40% 96%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 216 34% 17%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    overflow-x: hidden;
+  }
+}
+
+@keyframes liquid-motion {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.liquid-background {
+  background: linear-gradient(
+    -45deg,
+    #ff3e3e,
+    #ffae00,
+    #2196f3,
+    #4caf50
+  );
+  background-size: 400% 400%;
+  animation: liquid-motion 12s ease infinite;
+  opacity: 0.4;
+}
+
+.dark .liquid-background {
+  opacity: 0.2;
+  filter: saturate(1.8);
+}
+
+.liquid-overlay {
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+.dark .liquid-overlay {
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.animate-pop-in {
+  animation: pop-in 0.6s ease-out forwards;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.98); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.card-3d {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
