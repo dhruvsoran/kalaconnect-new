@@ -1,90 +1,22 @@
 {
-  "products": [
-    {
-      "name": "Sacred Ganesha Madhubani Painting",
-      "description": "An authentic Madhubani masterpiece from Bihar, handcrafted with natural dyes. This painting depicts Lord Ganesha surrounded by intricate floral motifs, representing prosperity and wisdom.",
-      "status": "Active",
-      "price": "₹4,500",
-      "stock": 10,
-      "date": "2024-05-08T10:00:00Z",
-      "image": "https://picsum.photos/seed/painting1/800/800",
-      "aiHint": "madhubani painting"
-    },
-    {
-      "name": "Royal Tanjore Saraswati Art",
-      "description": "Exquisite Tanjore painting with 24-carat gold foil and semi-precious stones. This divine depiction of Goddess Saraswati is a symbol of knowledge and music.",
-      "status": "Active",
-      "price": "₹18,500",
-      "stock": 3,
-      "date": "2024-05-07T14:30:00Z",
-      "image": "https://picsum.photos/seed/painting2/800/800",
-      "aiHint": "tanjore art"
-    },
-    {
-      "name": "Odisha Pattachitra: Tree of Life",
-      "description": "A stunning Pattachitra scroll painting on cloth, detailing the interconnectedness of all beings through the 'Tree of Life'.",
-      "status": "Active",
-      "price": "₹3,200",
-      "stock": 15,
-      "date": "2024-05-06T09:15:00Z",
-      "image": "https://picsum.photos/seed/painting3/800/800",
-      "aiHint": "pattachitra painting"
-    },
-    {
-      "name": "Kalamkari Hand-Painted Lotus",
-      "description": "A traditional Kalamkari artwork featuring hand-painted lotus flowers in earth tones using vegetable dyes on cotton fabric.",
-      "status": "Active",
-      "price": "₹2,800",
-      "stock": 20,
-      "date": "2024-05-05T16:45:00Z",
-      "image": "https://picsum.photos/seed/painting4/800/800",
-      "aiHint": "kalamkari art"
-    },
-    {
-      "name": "Mithila Peacocks Canvas",
-      "description": "Vibrant Madhubani painting featuring a pair of peacocks, symbolizing eternal love and beauty. Handcrafted on fine canvas.",
-      "status": "Active",
-      "price": "₹5,200",
-      "stock": 5,
-      "date": "2024-05-04T12:00:00Z",
-      "image": "https://picsum.photos/seed/painting5/800/800",
-      "aiHint": "peacock painting"
-    },
-    {
-      "name": "Golden Krishna Tanjore Art",
-      "description": "Lord Krishna depicted in his childhood form, adorned with genuine gold leaf and sparkling stones. A royal Tamil Nadu tradition.",
-      "status": "Active",
-      "price": "₹22,000",
-      "stock": 2,
-      "date": "2024-05-03T11:00:00Z",
-      "image": "https://picsum.photos/seed/painting6/800/800",
-      "aiHint": "krishna art"
-    },
-    {
-      "name": "Warli Tribal Life Mural",
-      "description": "Authentic Warli art from Maharashtra, painted with white pigment on a terracotta background, depicting the daily rhythm of tribal life.",
-      "status": "Active",
-      "price": "₹1,800",
-      "stock": 30,
-      "date": "2024-05-02T15:30:00Z",
-      "image": "https://picsum.photos/seed/painting7/800/800",
-      "aiHint": "warli art"
-    },
-    {
-      "name": "Kangra Valley Miniature",
-      "description": "An exquisite miniature painting from the Himachal foothills, known for its soft colors and lyrical portrayal of romantic themes.",
-      "status": "Active",
-      "price": "₹7,500",
-      "stock": 4,
-      "date": "2024-05-01T10:00:00Z",
-      "image": "https://picsum.photos/seed/painting8/800/800",
-      "aiHint": "miniature painting"
-    }
+  "paintingImagePlaceholders": [
+    "https://picsum.photos/seed/painting1/800/800",
+    "https://picsum.photos/seed/painting2/800/800",
+    "https://picsum.photos/seed/painting3/800/800",
+    "https://picsum.photos/seed/painting4/800/800",
+    "https://picsum.photos/seed/painting5/800/800",
+    "https://picsum.photos/seed/painting6/800/800",
+    "https://picsum.photos/seed/painting7/800/800",
+    "https://picsum.photos/seed/painting8/800/800"
   ],
-  "profile": {
-    "name": "Artisan Ravi",
-    "location": "Mithila, Bihar",
-    "story": "I am a folk artist dedicated to preserving the ancient art of Madhubani.",
-    "heritage": "Mithila Art (Madhubani)"
-  }
+  "sampleArtStyles": [
+    "Madhubani",
+    "Tanjore",
+    "Pattachitra",
+    "Kalamkari",
+    "Warli",
+    "Kangra Miniature",
+    "Mysore Painting",
+    "Phad Painting"
+  ]
 }

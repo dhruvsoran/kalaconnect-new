@@ -4,19 +4,21 @@
 import Link from "next/link";
 import { KalaConnectIcon } from "@/components/icons";
 import { HomeHeaderActions } from "@/components/home-header-actions";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Menu } from "lucide-react";
+import { Menu, Palette, HelpCircle, Store, LayoutDashboard, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { ThemeToggle } from "./theme-toggle";
+import { useUser } from "@/firebase";
 
 export function SiteHeader() {
     const [isScrolled, setIsScrolled] = useState(false);
     const pathname = usePathname();
-    const isHomePage = pathname === '/';
+    const router = useRouter();
     const [open, setOpen] = useState(false);
+    const { user, loading } = useUser();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -26,60 +28,106 @@ export function SiteHeader() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const navLinks = [
+        { href: "/explore", label: "Explore", icon: <Palette className="h-4 w-4" /> },
+        { href: "/register?role=artisan", label: "Sell on KalaConnect", icon: <Store className="h-4 w-4" /> },
+    ];
+
     return (
         <header className={cn(
             "sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+            isScrolled && "shadow-sm"
         )}>
-            <div className="flex h-20 items-center px-4 sm:px-6 lg:px-8">
-                <Link href="/" className="mr-auto flex items-center gap-2 font-bold text-2xl font-headline transition-colors active:text-accent active:animate-pop">
-                    <KalaConnectIcon className="h-8 w-8 text-primary" />
-                    कलाConnect
+            <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
+                <Link href="/" className="mr-auto flex items-center gap-2 font-bold text-xl font-headline transition-colors active:text-accent active:animate-pop">
+                    <KalaConnectIcon className="h-7 w-7 text-primary" />
+                    <span>कलाConnect</span>
                 </Link>
-                <div className="flex items-center justify-end gap-6">
-                    <nav className="hidden md:flex gap-6">
-                        <Link href="/#features" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-primary">
-                        Features
+
+                <nav className="hidden md:flex items-center gap-1">
+                    {navLinks.map((link) => (
+                        <Link
+                            key={link.href + link.label}
+                            href={link.href}
+                            className={cn(
+                                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                                pathname === link.href
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            )}
+                        >
+                            <span className="flex items-center gap-1.5">
+                                {link.icon}
+                                {link.label}
+                            </span>
                         </Link>
-                        <Link href="/#about" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-primary">
-                        About
-                        </Link>
-                        <Link href="/explore" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-primary">
-                        Explore
-                        </Link>
-                    </nav>
-                     <div className="flex items-center gap-2">
-                        <ThemeToggle />
-                        <HomeHeaderActions />
-                        <Sheet open={open} onOpenChange={setOpen}>
-                            <SheetTrigger asChild>
-                                 <Button variant="ghost" size="icon" className="md:hidden">
-                                    <Menu />
-                                    <span className="sr-only">Toggle Menu</span>
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left">
-                                <div className="grid gap-6 py-6">
-                                     <Link href="/" className="flex items-center gap-2 font-bold text-2xl font-headline" onClick={() => setOpen(false)}>
-                                        <KalaConnectIcon className="h-8 w-8 text-primary" />
-                                        कलाConnect
-                                    </Link>
-                                    <Link href="/#features" className="text-lg font-semibold" onClick={() => setOpen(false)}>
-                                        Features
-                                    </Link>
-                                    <Link href="/#about" className="text-lg font-semibold" onClick={() => setOpen(false)}>
-                                        About
-                                    </Link>
-                                    <Link href="/explore" className="text-lg font-semibold" onClick={() => setOpen(false)}>
-                                        Explore
-                                    </Link>
-                                    <div className="flex flex-col gap-4 mt-6">
-                                         <Link href="/login" className="text-lg font-semibold font-headline" onClick={() => setOpen(false)}>Log In</Link>
-                                         <Button asChild onClick={() => setOpen(false)}><Link href="/register" className="font-headline">Sign Up</Link></Button>
-                                    </div>
+                    ))}
+                </nav>
+
+                <div className="flex items-center gap-2 ml-4">
+                    <ThemeToggle />
+                    <HomeHeaderActions />
+                    <Sheet open={open} onOpenChange={setOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon" className="md:hidden">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Toggle Menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-[300px]">
+                            <div className="grid gap-6 py-6">
+                                <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline" onClick={() => setOpen(false)}>
+                                    <KalaConnectIcon className="h-7 w-7 text-primary" />
+                                    कलाConnect
+                                </Link>
+                                <div className="grid gap-2">
+                                    {navLinks.map((link) => (
+                                        <Link
+                                            key={link.href + link.label}
+                                            href={link.href}
+                                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-muted"
+                                            onClick={() => setOpen(false)}
+                                        >
+                                            {link.icon}
+                                            {link.label}
+                                        </Link>
+                                    ))}
                                 </div>
-                            </SheetContent>
-                        </Sheet>
-                    </div>
+                                <div className="border-t pt-4 grid gap-2">
+                                    {user ? (
+                                        <>
+                                            <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-muted" onClick={() => setOpen(false)}>
+                                                <LayoutDashboard className="h-4 w-4" />
+                                                Dashboard
+                                            </Link>
+                                            <Button variant="ghost" className="justify-start gap-3 px-3 py-2.5" onClick={() => {
+                                                localStorage.removeItem('token');
+                                                localStorage.removeItem('isLoggedIn');
+                                                localStorage.removeItem('userRole');
+                                                localStorage.removeItem('userId');
+                                                window.dispatchEvent(new Event('auth-change'));
+                                                setOpen(false);
+                                                router.push('/');
+                                            }}>
+                                                <LogOut className="h-4 w-4" />
+                                                Log Out
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link href="/login" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-muted" onClick={() => setOpen(false)}>
+                                                <HelpCircle className="h-4 w-4" />
+                                                Log In
+                                            </Link>
+                                            <Button asChild className="w-full" onClick={() => setOpen(false)}>
+                                                <Link href="/register" className="font-headline">Sign Up Free</Link>
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
         </header>

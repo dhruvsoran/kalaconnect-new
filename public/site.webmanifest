@@ -1,0 +1,17 @@
+{
+  "name": "कलाConnect",
+  "short_name": "KalaConnect",
+  "description": "Indian Art Marketplace - Handcrafted by Artisans",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafaf9",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

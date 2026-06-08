@@ -4,7 +4,21 @@
 import { generateProductDescription, GenerateProductDescriptionInput } from "@/ai/flows/generate-product-descriptions";
 import { createMarketingContent, CreateMarketingContentInput } from "@/ai/flows/create-marketing-content";
 import { getChatbotAssistance, GetChatbotAssistanceInput } from "@/ai/flows/get-chatbot-assistance";
-import { addProduct, deleteProduct as deleteProductDb, Profile, Product, saveProfile as saveProfileDb, updateProduct } from "@/lib/db";
+import { 
+  addProduct, 
+  deleteProduct as deleteProductDb, 
+  Product, 
+  updateProduct, 
+  getUserProfileByUserId,
+  createOrUpdateUserProfile,
+  UserProfile,
+  getArtisanStats,
+  getArtisanOrders,
+  getAllOrders,
+  getProducts,
+  updateOrderStatus,
+  getOrderById
+} from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 type GenerateProductDescriptionActionInput = Omit<GenerateProductDescriptionInput, "productImageUri"> & {
@@ -45,31 +59,37 @@ export async function getChatbotAssistanceAction(input: GetChatbotAssistanceInpu
 export async function saveProductAction(productData: {
     name: string;
     description: string;
-    price: string;
+    price: number;
     stock: number;
     image: string;
-    aiHint: string;
+    category?: string;
+    tags?: string[];
     status: Product['status'];
+    artisanId: string;
+    artisanName: string;
     isEditing: boolean;
-    originalName?: string;
+    productId?: string;
 }) {
     try {
-        const { isEditing, originalName, ...newProductData } = productData;
+        const { isEditing, productId, artisanId, artisanName, ...newProductData } = productData;
         
         let savedProduct;
 
-        if (isEditing) {
-            if (!originalName) {
-                 return { error: "Original product name is required for editing." };
-            }
-            const productToUpdate: Omit<Product, 'date'> = { ...newProductData };
-            savedProduct = await updateProduct(originalName, productToUpdate);
+        if (isEditing && productId) {
+            const productToUpdate: Partial<Product> = { ...newProductData };
+            savedProduct = await updateProduct(productId, productToUpdate);
         } else {
-            const productToAdd: Omit<Product, 'date'> = { ...newProductData };
+            const productToAdd: Omit<Product, '_id' | 'createdAt' | 'updatedAt'> = { 
+              ...newProductData, 
+              artisanId, 
+              artisanName 
+            };
             savedProduct = await addProduct(productToAdd);
         }
         
         revalidatePath('/dashboard/products');
+        revalidatePath('/explore');
+        revalidatePath('/');
         return { success: true, product: savedProduct };
     } catch (error) {
         console.error("Error in saveProductAction:", error);
@@ -77,25 +97,96 @@ export async function saveProductAction(productData: {
     }
 }
 
-export async function deleteProductAction(productName: string) {
+export async function deleteProductAction(productId: string) {
     try {
-        const result = await deleteProductDb(productName);
+        const result = await deleteProductDb(productId);
         revalidatePath('/dashboard/products');
-        return result;
+        revalidatePath('/explore');
+        revalidatePath('/');
+        revalidatePath('/admin');
+        return { success: result };
     } catch (error) {
         console.error("Error in deleteProductAction:", error);
         return { error: "Failed to delete the product." };
     }
 }
 
-
-export async function saveProfileAction(profileData: Profile) {
+export async function saveUserProfileAction(profileData: Omit<UserProfile, '_id' | 'createdAt' | 'updatedAt'>) {
     try {
-        const updatedProfile = await saveProfileDb(profileData);
+        const updatedProfile = await createOrUpdateUserProfile(profileData);
         revalidatePath('/dashboard/profile');
         return { success: true, profile: updatedProfile };
     } catch (error) {
-        console.error("Error in saveProfileAction:", error);
+        console.error("Error in saveUserProfileAction:", error);
         return { error: "Failed to save profile." };
+    }
+}
+
+export async function getArtisanDashboardStats(artisanId: string) {
+    try {
+        const stats = await getArtisanStats(artisanId);
+        return { success: true, stats };
+    } catch (error) {
+        console.error("Error in getArtisanDashboardStats:", error);
+        return { error: "Failed to fetch artisan stats." };
+    }
+}
+
+export async function getArtisanOrdersAction(artisanId: string) {
+    try {
+        const orders = await getArtisanOrders(artisanId);
+        return { success: true, orders };
+    } catch (error) {
+        console.error("Error in getArtisanOrdersAction:", error);
+        return { error: "Failed to fetch artisan orders." };
+    }
+}
+
+export async function getAllOrdersAction() {
+    try {
+        const orders = await getAllOrders();
+        return { success: true, orders };
+    } catch (error) {
+        console.error("Error in getAllOrdersAction:", error);
+        return { error: "Failed to fetch all orders." };
+    }
+}
+
+export async function updateOrderStatusAction(
+  orderId: string,
+  status: 'Processing' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled',
+  updatedBy: string,
+  updatedByRole: 'buyer' | 'artisan' | 'admin' | 'system',
+  note?: string
+) {
+    try {
+        const order = await updateOrderStatus(orderId, status, updatedBy, updatedByRole, note);
+        revalidatePath('/dashboard/orders');
+        revalidatePath('/admin');
+        revalidatePath(`/dashboard/orders/${orderId}`);
+        return { success: true, order };
+    } catch (error) {
+        console.error("Error in updateOrderStatusAction:", error);
+        return { error: "Failed to update order status." };
+    }
+}
+
+export async function getOrderDetailsAction(orderId: string) {
+    try {
+        const order = await getOrderById(orderId);
+        return { success: true, order };
+    } catch (error) {
+        console.error("Error in getOrderDetailsAction:", error);
+        return { error: "Failed to fetch order details." };
+    }
+}
+
+export async function getProductsForExplore() {
+    try {
+        const products = await getProducts({ status: 'Active' });
+        return { success: true, products };
+    } catch (error) {
+        console.error("Error in getProductsForExplore:", error);
+        return { error: "Failed to fetch products." };
     }
 }

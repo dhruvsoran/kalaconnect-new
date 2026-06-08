@@ -1,36 +1,63 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
-import { Auth } from 'firebase/auth';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 
-interface FirebaseContextType {
-  firebaseApp: FirebaseApp | null;
-  firestore: Firestore | null;
-  auth: Auth | null;
-}
+type FirebaseContextType = {
+  firebaseApp: null;
+  firestore: null;
+  auth: null;
+  currentUser: { id: string; email: string; name?: string; role?: string } | null;
+  loading: boolean;
+};
 
 const FirebaseContext = createContext<FirebaseContextType>({
   firebaseApp: null,
   firestore: null,
   auth: null,
+  currentUser: null,
+  loading: true,
 });
 
-export const FirebaseProvider: React.FC<{
-  children: ReactNode;
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
-}> = ({ children, firebaseApp, firestore, auth }) => {
+export const FirebaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<null | { id: string; email: string; name?: string; role?: string }>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadCurrentUser = async () => {
+    setLoading(true);
+    try {
+      const token = (typeof window !== 'undefined' && localStorage.getItem('token')) || null;
+      const res = await fetch('/api/auth/me', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      const json = await res.json();
+      setCurrentUser(json.user || null);
+    } catch (e) {
+      setCurrentUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCurrentUser();
+
+    const handleAuthChange = () => {
+      loadCurrentUser();
+    };
+
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, []);
+
   return (
-    <FirebaseContext.Provider value={{ firebaseApp, firestore, auth }}>
+    <FirebaseContext.Provider value={{ firebaseApp: null, firestore: null, auth: null, currentUser, loading }}>
       {children}
     </FirebaseContext.Provider>
   );
 };
 
 export const useFirebase = () => useContext(FirebaseContext);
-export const useFirebaseApp = () => useContext(FirebaseContext).firebaseApp;
-export const useFirestore = () => useContext(FirebaseContext).firestore;
-export const useAuth = () => useContext(FirebaseContext).auth;
+export const useFirebaseApp = () => null;
+export const useFirestore = () => null;
+export const useAuth = () => null;
+

@@ -43,6 +43,7 @@ export async function receiveProductRecommendations(
 
 const prompt = ai.definePrompt({
   name: 'receiveProductRecommendationsPrompt',
+  model: 'googleai/gemini-2.5-flash',
   input: {schema: ReceiveProductRecommendationsInputSchema},
   output: {schema: ReceiveProductRecommendationsOutputSchema},
   prompt: `You are an expert recommendation system for an online marketplace called KalaConnect that sells Indian artisan products. Given a customer's preferences and browsing history, you will return a list of recommended product IDs.

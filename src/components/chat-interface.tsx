@@ -45,16 +45,21 @@ export function ChatInterface() {
         setInput('');
         setIsLoading(true);
 
-        const result = await getChatbotAssistanceAction({ query: input });
-        
-        const botMessage: Message = {
-            id: Date.now() + 1,
-            text: result.response || result.error || "Sorry, something went wrong.",
-            sender: 'bot'
-        };
+        try {
+            const result = await getChatbotAssistanceAction({ query: input });
+            
+            const botMessage: Message = {
+                id: Date.now() + 1,
+                text: result.response || result.error || "Sorry, something went wrong.",
+                sender: 'bot'
+            };
 
-        setMessages(prev => [...prev, botMessage]);
-        setIsLoading(false);
+            setMessages(prev => [...prev, botMessage]);
+        } catch (e) {
+            setMessages(prev => [...prev, { id: Date.now() + 1, text: "Sorry, something went wrong. Please try again.", sender: 'bot' }]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

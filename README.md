@@ -1,65 +1,176 @@
 # कलाConnect (KalaConnect) 🎨
 
-कलाConnect is a cutting-edge, AI-powered digital marketplace designed to empower Indian artisans and celebrate cultural heritage. It bridges the gap between traditional craftsmanship and the global digital economy.
+A production-ready AI-powered digital marketplace connecting Indian artisans directly with art lovers worldwide. Built with Next.js 15, MongoDB, and Genkit AI.
 
-## 🌟 Key Features
+## Features
 
-### 🤖 Generative AI Integration (Powered by Genkit)
-- **AI Product Storyteller**: Generates rich, culturally relevant product descriptions from images and basic details.
-- **AI Marketing Assistant**: Automatically creates social media posts and email campaigns for artisans.
-- **KalaConnect AI Assistant**: A 24/7 chatbot to help artisans manage their shops and help buyers find the perfect art.
-- **AI Curated Picks**: Personalized artwork recommendations for buyers based on their preferences.
+### For Buyers
+- Browse authentic handcrafted artworks from verified artisans
+- Secure checkout with UPI, Cards, and Net Banking
+- Real-time order tracking with status history timeline
+- Rate and review purchases
+- Wishlist and cart management
+- AI-powered art recommendations
 
-### 👥 User Roles & Dashboards
-- **Artisan Workspace**: Tools for listing products, tracking analytics, and using AI to grow their business.
-- **Buyer Gallery**: A beautiful discovery feed with community interactions and purchase history.
-- **Admin Command Center**: A master dashboard for the platform owner (**Dhruv**) to manage users, monitor revenue, and oversee all transactions.
+### For Artisans
+- Free marketplace to sell artwork online
+- AI-generated product descriptions from photos
+- Auto-create social media posts and marketing campaigns
+- Order management with Amazon-style status updates
+- Analytics dashboard to track sales and growth
+- Voice support for managing shop in local languages
 
-### 💬 Community & Social
-- **Likes & Comments**: Buyers can interact directly with heritage pieces and provide feedback to artisans.
-- **Follow System**: Stay connected with your favorite creators.
-- **Social Sharing**: Easily share beautiful Indian art across the web.
+### For Admin
+- Complete platform oversight with role-based access
+- Manage products, orders, users, and artisans
+- System logs viewer with error tracking and activity monitoring
+- Contact message management
+- Revenue and analytics overview
 
-### 💳 E-Commerce Flow
-- **Shopping Cart & Wishlist**: Manage favorites and intended purchases.
-- **Secure Checkout**: Simulated payment gateway with support for Cards, UPI, and Net Banking.
-- **Order Tracking**: Real-time status updates for buyers.
+### AI-Powered Tools (Genkit + Gemini)
+- **Product Storyteller**: Generates culturally rich descriptions from images
+- **Marketing Assistant**: Creates social media posts and email campaigns
+- **24/7 Chatbot**: Helps artisans set up shops and buyers find art
+- **Smart Matching**: Connects art styles with the right buyers
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [ShadCN UI](https://ui.shadcn.com/)
-- **Backend**: [Firebase](https://firebase.google.com/) (Authentication & Firestore)
-- **AI Engine**: [Genkit](https://firebase.google.com/docs/genkit) (Gemini 2.5/3.1)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Animations**: Custom CSS Liquid Motion & Tailwind Animate
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router) |
+| Styling | Tailwind CSS + ShadCN UI |
+| Database | MongoDB (Atlas) |
+| Auth | JWT (localStorage + API) |
+| AI Engine | Genkit + Gemini |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Fonts | Playfair Display + PT Sans |
 
-## 🎨 Visual Identity
-- **Branding**: Uses "Playfair Display" for a premium, heritage feel.
-- **Liquid Background**: A dynamic, site-wide fluid motion background that adapts to Light and Dark modes.
-- **3D Effects**: Immersive hover animations on product cards.
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js installed.
-- A Firebase project with Auth (Email/Password) and Firestore enabled.
-- Google AI (Gemini) API Key.
+- Node.js 18+
+- MongoDB Atlas cluster (or local MongoDB)
+- Google AI (Gemini) API key
 
 ### Environment Variables
+
 Create a `.env` file in the root:
+
 ```env
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.example.mongodb.net/?appName=Cluster0
+MONGODB_DB_NAME=kalaconnect
+JWT_SECRET=your_jwt_secret_here
 GEMINI_API_KEY=your_gemini_key
-NEXT_PUBLIC_FIREBASE_API_KEY=your_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_id
+SETUP_SECRET=your_admin_setup_secret
+NODE_ENV=development
 ```
 
 ### Installation
+
 ```bash
 npm install
 npm run dev
 ```
 
-## 👨‍💻 Developer
-Developed by **Dhruv Soran**
+Open [http://localhost:3000](http://localhost:3000)
+
+### Creating an Admin User
+
+```bash
+curl -X POST http://localhost:3000/api/setup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@kalaconnect.com","password":"your_password","name":"Admin","secret":"your_setup_secret"}'
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/          # Login, register, me endpoints
+│   │   ├── db/            # Generic CRUD API with role-based access
+│   │   ├── setup/         # Admin user creation
+│   │   └── stats/         # Platform statistics
+│   ├── admin/             # Admin dashboard
+│   ├── dashboard/         # Artisan & buyer dashboards
+│   │   ├── orders/        # Order management & tracking
+│   │   ├── products/      # Product CRUD (artisan)
+│   │   ├── analytics/     # AI-powered analytics
+│   │   ├── chatbot/       # AI assistant
+│   │   └── marketing/     # AI marketing tools
+│   ├── explore/           # Marketplace browse page
+│   ├── cart/              # Shopping cart
+│   ├── checkout/          # Secure checkout
+│   ├── login/             # User login
+│   ├── register/          # User registration (buyer/artisan)
+│   ├── not-found.tsx      # Custom 404 page
+│   ├── error.tsx          # Custom 500 error boundary
+│   └── access-denied/     # Custom 403 page
+├── components/            # Reusable UI components
+├── lib/
+│   ├── db.ts              # Database models & queries
+│   ├── actions.ts         # Server actions
+│   ├── logger.ts          # Client-side logging utility
+│   ├── jwt.ts             # JWT token utilities
+│   ├── password.ts        # Password hashing
+│   └── mongodb.ts         # MongoDB connection
+├── ai/
+│   └── flows/             # Genkit AI flows
+├── middleware.ts           # Auth redirect middleware
+└── hooks/                 # Custom React hooks
+```
+
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register buyer/artisan |
+| POST | `/api/auth/login` | Login with email/password |
+| GET | `/api/auth/me` | Get current user (requires token) |
+
+### Database (Role-Based Access)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/db/products` | List products (active for buyers, all for admin) |
+| POST | `/api/db/products` | Create product (artisan/admin only) |
+| GET | `/api/db/orders` | List orders (buyer sees own, artisan sees their products', admin sees all) |
+| POST | `/api/db/orders` | Place order (buyer) |
+| PATCH | `/api/db/orders/:id` | Update order status (artisan/admin) |
+| GET | `/api/db/users` | List users (admin only) |
+| GET | `/api/db/contactMessages` | List messages (admin only) |
+| POST | `/api/db/contactMessages` | Send contact message (public) |
+| GET | `/api/db/systemLogs` | System logs (admin only) |
+| GET | `/api/stats` | Platform statistics |
+
+## User Isolation
+
+All users are fully isolated:
+- **Buyers** can only see their own orders and data
+- **Artisans** can only see orders containing their products
+- **Admin** has full access to all data
+- **Contact messages** are only visible to admin
+- **System logs** are only visible to admin
+
+## Error Pages
+
+| Status | Page | Description |
+|--------|------|-------------|
+| 404 | Custom not-found | Branded page with navigation links |
+| 500 | Custom error boundary | Error details with retry option |
+| 403 | Access denied | Redirects to login |
+
+## Admin Monitoring
+
+The admin dashboard includes a **Logs** tab that automatically tracks:
+- User registrations and login attempts
+- Order placements and status changes
+- Product creation and deletion
+- Failed authentication attempts (as warnings)
+- System errors
+
+## License
+
+Private - Developed by Dhruv Soran

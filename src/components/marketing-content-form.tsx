@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { createMarketingContentAction } from "@/lib/actions";
 import { cn } from "@/lib/utils";
+import { useUser, useFirebase } from "@/firebase";
 
 const formSchema = z.object({
     productName: z.string().min(1, "Please select a product."),
@@ -33,42 +34,88 @@ type VoiceInputState = {
     targetField: keyof FormValues | null;
 };
 
-const products = [
-    { name: "Hand-painted Madhubani Saree", description: "A beautiful Tussar silk saree, hand-painted with traditional Madhubani motifs depicting tales of nature and mythology.", culture: "Mithila region of Bihar" },
-    { name: "Terracotta Horse Statue", description: "A rustic terracotta horse, symbolizing power and grace, handcrafted by artisans from Panchmura village.", culture: "Bankura district of West Bengal" },
-];
+type Product = {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    artisanId: string;
+    artisanName: string;
+    category?: string;
+    tags?: string[];
+};
 
 export function MarketingContentForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [socialMediaPost, setSocialMediaPost] = useState("");
     const [emailCampaign, setEmailCampaign] = useState("");
     const { toast } = useToast();
-    
+    const { user } = useUser();
+    const {} = useFirebase();
+
+    const [products, setProducts] = useState<Product[]>([]);
+    const [productsLoading, setProductsLoading] = useState(true);
+
     const [voiceState, setVoiceState] = useState<VoiceInputState>({
         isListening: false,
         transcript: "",
-        targetField: null,
+        targetField: undefined as any,
     });
     const recognitionRef = useRef<any>(null);
 
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+            try {
+                const res = await fetch("/api/db/products", {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                });
+                const json = await res.json();
+                const all: Product[] = json.data || [];
+                const myProducts = user
+                    ? all.filter((p) => p.artisanId === user.id)
+                    : [];
+                setProducts(myProducts);
+            } catch (e) {
+                console.error("Failed to fetch products", e);
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Could not load your products.",
+                });
+            } finally {
+                setProductsLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchProducts();
+        }
+    }, [user, toast]);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             productName: "",
             productDescription: "",
-            artisanName: "Ravi Kumar",
+            artisanName: user?.name || "",
             cultureHeritage: "",
             targetAudience: "Art lovers, people interested in Indian culture",
         },
     });
-    
+
+    useEffect(() => {
+        if (user?.name && !form.getValues("artisanName")) {
+            form.setValue("artisanName", user.name);
+        }
+    }, [user, form]);
+
     const handleProductChange = (productName: string) => {
-        const product = products.find(p => p.name === productName);
+        const product = products.find((p) => p.name === productName);
         if (product) {
             form.setValue("productName", product.name);
             form.setValue("productDescription", product.description);
-            form.setValue("cultureHeritage", product.culture);
         }
     };
 
@@ -79,7 +126,7 @@ export function MarketingContentForm() {
         try {
             const result = await createMarketingContentAction(data);
             if (result.error) throw new Error(result.error);
-            
+
             setSocialMediaPost(result.socialMediaPost || "");
             setEmailCampaign(result.emailCampaign || "");
 
@@ -97,15 +144,19 @@ export function MarketingContentForm() {
             setIsLoading(false);
         }
     }
-    
+
     const copyToClipboard = (text: string, type: string) => {
         navigator.clipboard.writeText(text);
         toast({ title: `Copied ${type} to clipboard!` });
     };
 
     const handleVoiceInput = (fieldName: keyof FormValues) => {
-         if (!('webkitSpeechRecognition' in window)) {
-            toast({ variant: "destructive", title: "Browser not supported", description: "Your browser does not support voice input." });
+        if (!("webkitSpeechRecognition" in window)) {
+            toast({
+                variant: "destructive",
+                title: "Browser not supported",
+                description: "Your browser does not support voice input.",
+            });
             return;
         }
 
@@ -115,39 +166,35 @@ export function MarketingContentForm() {
             return;
         }
 
-        const recognition = new window.webkitSpeechRecognition();
+        const recognition = new (window as any).webkitSpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = "en-US";
 
         recognition.onstart = () => {
             setVoiceState({ isListening: true, transcript: "", targetField: fieldName });
         };
 
-        recognition.onend = () => {
-            setVoiceState({ isListening: false, transcript: "", targetField: null });
-        };
-        
         recognition.onerror = (event: any) => {
-            if (event.error === 'network') {
+            if (event.error === "network") {
                 toast({
                     variant: "destructive",
                     title: "Voice Recognition Error",
-                    description: "Network issue. Please check your internet connection or browser permissions."
+                    description: "Network issue. Please check your internet connection or browser permissions.",
                 });
-            } else {
-                 toast({
+            } else if (event.error !== "no-speech") {
+                toast({
                     variant: "destructive",
                     title: "Voice Recognition Error",
-                    description: `An unexpected error occurred: ${event.error}`
+                    description: `An unexpected error occurred: ${event.error}`,
                 });
             }
             console.error("Speech recognition error", event.error);
             setVoiceState({ isListening: false, transcript: "", targetField: null });
         };
 
-        recognition.onresult = (event) => {
-            let finalTranscript = '';
+        recognition.onresult = (event: any) => {
+            let finalTranscript = "";
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
                     finalTranscript += event.results[i][0].transcript;
@@ -159,15 +206,15 @@ export function MarketingContentForm() {
                 form.setValue(fieldName, newVal.trim());
             }
         };
-        
+
         recognition.start();
         recognitionRef.current = recognition;
     };
-    
+
     const renderMicButton = (fieldName: keyof FormValues) => {
         const isListeningToField = voiceState.isListening && voiceState.targetField === fieldName;
         return (
-             <Button
+            <Button
                 type="button"
                 size="icon"
                 variant="ghost"
@@ -191,14 +238,27 @@ export function MarketingContentForm() {
                         <FormField control={form.control} name="productName" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Product</FormLabel>
-                                <Select onValueChange={handleProductChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger><SelectValue placeholder="Select a product to market" /></SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {products.map(p => <SelectItem key={p.name} value={p.name}>{p.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                {productsLoading ? (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Loading products...
+                                    </div>
+                                ) : products.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground py-2">
+                                        No products found. Please add products in the dashboard first.
+                                    </p>
+                                ) : (
+                                    <Select onValueChange={handleProductChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger><SelectValue placeholder="Select a product to market" /></SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {products.map((p) => (
+                                                <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )} />
@@ -214,7 +274,7 @@ export function MarketingContentForm() {
                         <FormField control={form.control} name="targetAudience" render={({ field }) => (
                             <FormItem><FormLabel>Target Audience</FormLabel><FormControl><div className="relative"><Input placeholder="e.g., Art lovers, tourists" {...field} />{renderMicButton("targetAudience")}</div></FormControl><FormMessage /></FormItem>
                         )} />
-                         <Button type="submit" size="lg" disabled={isLoading}>
+                        <Button type="submit" size="lg" disabled={isLoading}>
                             {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Generating...</> : <><Sparkles className="mr-2 h-4 w-4" />Generate Content</>}
                         </Button>
                     </CardContent>
@@ -236,7 +296,7 @@ export function MarketingContentForm() {
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-start justify-between">
-                             <div>
+                            <div>
                                 <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/> Email Campaign</CardTitle>
                                 <CardDescription>A longer-form email to send to your mailing list.</CardDescription>
                             </div>

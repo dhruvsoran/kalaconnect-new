@@ -7,40 +7,59 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useUser, useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser } from '@/firebase';
 
 export function HomeHeaderActions() {
     const { user, loading } = useUser();
-    const auth = useAuth();
+    
     const router = useRouter();
     
     const [cartCount, setCartCount] = useState(0);
     const [wishlistCount, setWishlistCount] = useState(0);
 
     useEffect(() => {
-        const updateCounts = () => {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            setCartCount(cart.length);
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            setWishlistCount(wishlist.length);
+        const fetchCounts = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setCartCount(0);
+                setWishlistCount(0);
+                return;
+            }
+            try {
+                const [cartRes, wishlistRes] = await Promise.all([
+                    fetch('/api/db/carts', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('/api/db/wishlist', { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+                const cartJson = await cartRes.json();
+                const wishlistJson = await wishlistRes.json();
+                setCartCount((cartJson.data?.items || []).length);
+                setWishlistCount((wishlistJson.data?.items || []).length);
+            } catch (e) {
+                console.error('Failed to fetch counts', e);
+            }
         };
-        
-        updateCounts();
-        window.addEventListener('storage', updateCounts);
-        window.addEventListener('cartUpdated', updateCounts);
-        window.addEventListener('wishlistUpdated', updateCounts);
+
+        fetchCounts();
+        window.addEventListener('cartUpdated', fetchCounts);
+        window.addEventListener('wishlistUpdated', fetchCounts);
 
         return () => {
-            window.removeEventListener('storage', updateCounts);
-            window.removeEventListener('cartUpdated', updateCounts);
-            window.removeEventListener('wishlistUpdated', updateCounts);
+            window.removeEventListener('cartUpdated', fetchCounts);
+            window.removeEventListener('wishlistUpdated', fetchCounts);
         };
     }, []);
 
     const handleLogout = async () => {
-        if (!auth) return;
-        await signOut(auth);
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('cart');
+            localStorage.removeItem('wishlist');
+            window.dispatchEvent(new Event('auth-change'));
+            window.dispatchEvent(new Event('cartUpdated'));
+            window.dispatchEvent(new Event('wishlistUpdated'));
+        }
         router.push('/');
     };
 
@@ -49,24 +68,29 @@ export function HomeHeaderActions() {
     }
 
     if (user) {
+        const isBuyerOrArtisan = user.role === 'buyer' || user.role === 'artisan';
         return (
             <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" asChild>
-                     <Link href="/wishlist" className="relative">
-                        <Heart className="h-5 w-5" />
-                        {wishlistCount > 0 && (
-                            <Badge className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0">{wishlistCount}</Badge>
-                        )}
-                    </Link>
-                </Button>
-                <Button variant="ghost" size="icon" asChild>
-                     <Link href="/cart" className="relative">
-                        <ShoppingCart className="h-5 w-5" />
-                        {cartCount > 0 && (
-                            <Badge className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
-                        )}
-                    </Link>
-                </Button>
+                {isBuyerOrArtisan && (
+                    <>
+                        <Button variant="ghost" size="icon" asChild>
+                             <Link href="/wishlist" className="relative">
+                                <Heart className="h-5 w-5" />
+                                {wishlistCount > 0 && (
+                                    <Badge className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0">{wishlistCount}</Badge>
+                                )}
+                            </Link>
+                        </Button>
+                        <Button variant="ghost" size="icon" asChild>
+                             <Link href="/cart" className="relative">
+                                <ShoppingCart className="h-5 w-5" />
+                                {cartCount > 0 && (
+                                    <Badge className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
+                                )}
+                            </Link>
+                        </Button>
+                    </>
+                )}
                 <div className="hidden sm:flex items-center gap-2">
                     <Button asChild>
                         <Link href="/dashboard">Dashboard</Link>
@@ -78,23 +102,13 @@ export function HomeHeaderActions() {
     }
 
     return (
-        <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon" asChild>
-                <Link href="/cart" className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cartCount > 0 && (
-                        <Badge className="absolute -right-2 -top-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
-                    )}
-                </Link>
+        <div className="hidden sm:flex items-center gap-2">
+            <Button variant="ghost" asChild>
+                <Link href="/login">Log In</Link>
             </Button>
-            <div className="hidden sm:flex items-center gap-2">
-                <Button variant="ghost" asChild>
-                    <Link href="/login">Log In</Link>
-                </Button>
-                <Button asChild>
-                    <Link href="/register">Sign Up</Link>
-                </Button>
-            </div>
+            <Button asChild>
+                <Link href="/register">Sign Up</Link>
+            </Button>
         </div>
     );
 }

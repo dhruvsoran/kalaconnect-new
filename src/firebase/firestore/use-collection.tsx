@@ -1,44 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Query, onSnapshot } from 'firebase/firestore';
-import { errorEmitter } from '../error-emitter';
-import { FirestorePermissionError } from '../errors';
 
-export function useCollection<T = any>(query: Query | null) {
+export function useCollection<T = any>(query: any | null) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!query) {
+    if (!query || !query.collection) {
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      query,
-      (snapshot) => {
-        const items = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as T[];
-        setData(items);
-        setLoading(false);
-      },
-      async (serverError) => {
-        const path = (query as any)._query?.path?.segments?.join('/') || 'unknown';
-        const permissionError = new FirestorePermissionError({
-          path,
-          operation: 'list',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setError(permissionError);
-        setLoading(false);
-      }
-    );
+    let cancelled = false;
 
-    return () => unsubscribe();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    fetch(`/api/db/${query.collection}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        setData(json.data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err as Error);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [query]);
 
   return { data, loading, error };

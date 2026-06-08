@@ -1,39 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DocumentReference, onSnapshot } from 'firebase/firestore';
-import { errorEmitter } from '../error-emitter';
-import { FirestorePermissionError } from '../errors';
 
-export function useDoc<T = any>(docRef: DocumentReference | null) {
+export function useDoc<T = any>(docRef: any | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!docRef) {
+    if (!docRef || !docRef.collection || !docRef.id) {
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      docRef,
-      (snapshot) => {
-        setData(snapshot.exists() ? (snapshot.data() as T) : null);
-        setLoading(false);
-      },
-      async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setError(permissionError);
-        setLoading(false);
-      }
-    );
+    let cancelled = false;
 
-    return () => unsubscribe();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    fetch(`/api/db/${docRef.collection}/${docRef.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        setData(json.data || null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err as Error);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [docRef]);
 
   return { data, loading, error };

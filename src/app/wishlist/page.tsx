@@ -25,11 +25,13 @@ export default function WishlistPage() {
             return;
         }
 
-        const storedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        let storedWishlist = [];
+        try { storedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]'); } catch { storedWishlist = []; }
         setWishlist(storedWishlist);
         
         const handleWishlistUpdate = () => {
-            const updatedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            let updatedWishlist = [];
+            try { updatedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]'); } catch { updatedWishlist = []; }
             setWishlist(updatedWishlist);
         };
         window.addEventListener('wishlistUpdated', handleWishlistUpdate);
@@ -49,28 +51,20 @@ export default function WishlistPage() {
         });
     };
     
-    const handleAddToCart = (product: Product) => {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const isProductInCart = cart.some((item: Product) => item.name === product.name);
-
-        if (isProductInCart) {
-             toast({
-                variant: "destructive",
-                title: "Already in Cart",
-                description: `${product.name} is already in your shopping cart.`,
-            });
+    const handleAddToCart = async (product: Product) => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const res = await fetch('/api/db/carts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({ action: 'add', product }),
+        });
+        const json = await res.json();
+        if (json.error) {
+            toast({ variant: 'destructive', title: 'Failed to add to cart' });
             return;
         }
-
-        const newCart = [...cart, product];
-        localStorage.setItem('cart', JSON.stringify(newCart));
         window.dispatchEvent(new Event('cartUpdated'));
-
-        toast({
-            title: "Added to Cart!",
-            description: `Successfully added ${product.name} to your cart.`,
-        });
-        
+        toast({ title: 'Added to Cart!', description: `Successfully added ${product.name} to your cart.` });
         // Remove from wishlist after adding to cart
         removeFromWishlist(product.name);
     };
