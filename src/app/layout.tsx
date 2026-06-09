@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { WebSiteSchema } from '@/components/seo/WebSiteSchema';
+import { Analytics } from '@vercel/analytics/next';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -84,6 +85,7 @@ export default function RootLayout({
         <OrganizationSchema />
         <WebSiteSchema />
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
