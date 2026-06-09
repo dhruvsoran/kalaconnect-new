@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const allowedOrigins = [
-  'https://kalaconnect.com',
-  'https://www.kalaconnect.com',
+  'https://kalaconnect.me',
+  'https://www.kalaconnect.me',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ];

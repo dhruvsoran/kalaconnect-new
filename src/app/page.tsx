@@ -621,7 +621,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Email us at</p>
-                    <p className="font-medium">support@kalaconnect.com</p>
+                    <p className="font-medium">support@kalaconnect.me</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

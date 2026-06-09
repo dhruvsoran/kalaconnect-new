@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Cookie Policy | कलाConnect',
     description: 'Cookie Policy for कलाConnect Indian Art Marketplace',
-    url: 'https://kalaconnect.com/cookies',
+    url: 'https://kalaconnect.me/cookies',
     type: 'website',
   },
   alternates: {

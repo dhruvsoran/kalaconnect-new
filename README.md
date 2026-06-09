@@ -80,7 +80,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ```bash
 curl -X POST http://localhost:3000/api/setup \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@kalaconnect.com","password":"your_password","name":"Admin","secret":"your_setup_secret"}'
+  -d '{"email":"admin@kalaconnect.me","password":"your_password","name":"Admin","secret":"your_setup_secret"}'
 ```
 
 ## Project Structure

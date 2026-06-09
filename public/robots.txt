@@ -6,4 +6,4 @@ Disallow: /cart
 Disallow: /checkout
 Disallow: /api/
 
-Sitemap: https://kalaconnect.com/sitemap.xml
+Sitemap: https://kalaconnect.me/sitemap.xml

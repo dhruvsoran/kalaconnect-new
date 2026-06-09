@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Terms & Conditions | कलाConnect',
     description: 'Terms & Conditions for कलाConnect Indian Art Marketplace',
-    url: 'https://kalaconnect.com/terms',
+    url: 'https://kalaconnect.me/terms',
     type: 'website',
   },
   alternates: {
