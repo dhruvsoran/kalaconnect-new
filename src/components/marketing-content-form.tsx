@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Sparkles, Copy, Send, Mail, Mic, Waves } from "lucide-react";
+import { Loader2, Sparkles, Copy, Send, Mail, Mic, Waves, Volume2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createMarketingContentAction } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import { useUser, useFirebase } from "@/firebase";
+import { TTSButton } from "@/components/ui/tts-button";
 
 const formSchema = z.object({
     productName: z.string().min(1, "Please select a product."),
@@ -286,9 +287,12 @@ export function MarketingContentForm() {
                                 <CardTitle className="flex items-center gap-2"><Send className="h-5 w-5"/> Social Media Post</CardTitle>
                                 <CardDescription>A short post for platforms like Instagram or Facebook.</CardDescription>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => copyToClipboard(socialMediaPost, "Social Post")} disabled={!socialMediaPost}>
-                                <Copy className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <TTSButton text={socialMediaPost} />
+                                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(socialMediaPost, "Social Post")} disabled={!socialMediaPost}>
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <Textarea placeholder="Generated social media post will appear here..." value={socialMediaPost} readOnly rows={8} className="bg-muted" />
@@ -300,9 +304,12 @@ export function MarketingContentForm() {
                                 <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/> Email Campaign</CardTitle>
                                 <CardDescription>A longer-form email to send to your mailing list.</CardDescription>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => copyToClipboard(emailCampaign, "Email Content")} disabled={!emailCampaign}>
-                                <Copy className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <TTSButton text={emailCampaign} />
+                                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(emailCampaign, "Email Content")} disabled={!emailCampaign}>
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <Textarea placeholder="Generated email campaign will appear here..." value={emailCampaign} readOnly rows={12} className="bg-muted"/>

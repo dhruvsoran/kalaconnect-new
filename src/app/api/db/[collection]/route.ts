@@ -123,6 +123,42 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
+  // Comments: publicly readable for any product
+  if (collection === 'comments') {
+    const url = new URL(req.url);
+    const productId = url.searchParams.get('productId');
+    const query: any = productId ? { productId } : {};
+    const items = await col.find(query).sort({ createdAt: -1 }).toArray();
+    const data = items.map((it: any) => ({
+      id: it._id?.toString?.(),
+      productId: it.productId,
+      userId: it.userId,
+      userName: it.userName || 'User',
+      text: it.text,
+      createdAt: it.createdAt,
+    }));
+    return NextResponse.json({ data });
+  }
+
+  // Likes: publicly readable counts, and check if current user liked
+  if (collection === 'likes') {
+    const url = new URL(req.url);
+    const productId = url.searchParams.get('productId');
+
+    if (productId && requester) {
+      const existing = await col.findOne({ productId, userId: requester._id?.toString?.() });
+      const count = await col.countDocuments({ productId });
+      return NextResponse.json({ data: { count, isLiked: !!existing } });
+    }
+
+    if (productId) {
+      const count = await col.countDocuments({ productId });
+      return NextResponse.json({ data: { count, isLiked: false } });
+    }
+
+    return NextResponse.json({ data: [] });
+  }
+
   // Default: no access to unknown collections
   return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
 }
@@ -179,6 +215,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
   // Likes
   if (collection === 'likes') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const action = body.action || 'add';
+
+    if (action === 'remove') {
+      await col.deleteOne({ productId: body.productId, userId: requester._id?.toString?.() });
+      return NextResponse.json({ ok: true });
+    }
+
     const existing = await col.findOne({ productId: body.productId, userId: requester._id?.toString?.() });
     if (existing) {
       return NextResponse.json({ id: existing._id?.toString?.() || null });

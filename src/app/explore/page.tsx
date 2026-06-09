@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Share2,
   UserPlus,
+  Volume2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -30,6 +31,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
 import { FadeIn, StaggerChildren, StaggerItem } from '@/components/motion-wrapper';
 import { ProductSchema } from '@/components/seo/ProductSchema';
+import { TTSButton } from '@/components/ui/tts-button';
 
 type Product = {
   id: string;
@@ -134,10 +136,14 @@ function ProductCard({ product }: { product: Product }) {
     let cancelled = false;
     async function loadInteractions() {
       try {
-        const resLikes = await fetch(`/api/db/likes/counts?productId=${encodeURIComponent(product.name)}`);
+        const token = localStorage.getItem('token');
+        const resLikes = await fetch(`/api/db/likes?productId=${encodeURIComponent(product.name)}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         const likesJson = await resLikes.json();
         if (cancelled) return;
         setLikes(likesJson.data?.count || 0);
+        setIsLiked(likesJson.data?.isLiked || false);
 
         const resComments = await fetch(`/api/db/comments?productId=${encodeURIComponent(product.name)}`);
         const commentsJson = await resComments.json();
@@ -186,7 +192,7 @@ function ProductCard({ product }: { product: Product }) {
         const res = await fetch('/api/db/likes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ productId: product.name }),
+          body: JSON.stringify({ productId: product.name, action: 'add' }),
         });
         const json = await res.json();
         if (!json.error) {
@@ -194,8 +200,16 @@ function ProductCard({ product }: { product: Product }) {
           setLikes(prev => prev + 1);
         }
       } else {
-        setIsLiked(false);
-        setLikes(prev => Math.max(0, prev - 1));
+        const res = await fetch('/api/db/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ productId: product.name, action: 'remove' }),
+        });
+        const json = await res.json();
+        if (!json.error) {
+          setIsLiked(false);
+          setLikes(prev => Math.max(0, prev - 1));
+        }
       }
     });
   };
@@ -264,6 +278,7 @@ function ProductCard({ product }: { product: Product }) {
             <Button size="icon" variant="ghost" className="bg-white/50 backdrop-blur-sm rounded-full" onClick={handleShare}>
               <Share2 className="h-5 w-5 text-gray-500" />
             </Button>
+            <TTSButton text={`${product.name}. Created by ${product.artisanName}. ${product.description}`} />
           </div>
           <Image
             src={product.image}

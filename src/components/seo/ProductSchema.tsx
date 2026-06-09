@@ -1,5 +1,3 @@
-'use client';
-
 import { JsonLd } from './JsonLd';
 
 interface ProductSchemaProps {
@@ -11,6 +9,7 @@ interface ProductSchemaProps {
   availability?: string;
   brand?: string;
   sku?: string;
+  url?: string;
   rating?: number;
   reviewCount?: number;
 }
@@ -24,6 +23,7 @@ export function ProductSchema({
   availability = 'https://schema.org/InStock',
   brand,
   sku,
+  url,
   rating,
   reviewCount,
 }: ProductSchemaProps) {
@@ -37,7 +37,7 @@ export function ProductSchema({
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     offers: {
       '@type': 'Offer',
-      url: typeof window !== 'undefined' ? window.location.href : '',
+      url: url || 'https://kalaconnect.com/explore',
       priceCurrency: currency,
       price,
       availability,

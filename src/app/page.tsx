@@ -19,6 +19,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FadeIn, StaggerChildren, StaggerItem } from '@/components/motion-wrapper';
 import { ProductSchema } from '@/components/seo/ProductSchema';
+import { TTSButton } from '@/components/ui/tts-button';
 
 type Product = {
   id: string;
@@ -760,6 +761,9 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
               itemProp="image"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-2 right-2 z-10">
+              <TTSButton text={`${product.name}. Created by ${product.artisanName}. ${product.description}`} />
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

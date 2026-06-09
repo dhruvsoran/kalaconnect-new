@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { verifyPassword } from '@/lib/password';
 import { signToken } from '@/lib/jwt';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { validateEmail, getClientIp } from '@/lib/validation';
 
 async function logAuth(level: string, message: string, details: string, extra?: Record<string, any>) {
   try {
@@ -13,6 +15,24 @@ async function logAuth(level: string, message: string, details: string, extra?: 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
   if (!email || !password) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+
+  if (!validateEmail(email)) {
+    return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+  }
+
+  if (typeof password !== 'string' || password.length > 128) {
+    return NextResponse.json({ error: 'Invalid password format' }, { status: 400 });
+  }
+
+  const clientIp = getClientIp(req);
+  const rateLimitResult = await checkRateLimit(`login:${clientIp}:${email}`);
+  if (!rateLimitResult.success) {
+    logAuth('warn', 'Rate limit exceeded', `IP: ${clientIp}, Email: ${email}`);
+    return NextResponse.json(
+      { error: 'Too many login attempts. Please try again later.' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': String(rateLimitResult.reset) } }
+    );
+  }
 
   const db = await getDb();
   const users = db.collection('users');

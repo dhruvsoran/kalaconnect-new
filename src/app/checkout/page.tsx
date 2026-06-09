@@ -78,8 +78,7 @@ export default function CheckoutPage() {
         return total + price;
   }, 0);
 
-  const transactionFee = subtotal * 0.025;
-  const total = subtotal + transactionFee;
+  const total = subtotal;
 
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
@@ -102,7 +101,6 @@ export default function CheckoutPage() {
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         total: total,
         subtotal: subtotal,
-        transactionFee: transactionFee,
         status: 'Processing' as const,
         trackingNumber: `AWB${Math.floor(Math.random() * 90000000) + 10000000}`,
         items: cart.map(item => ({
@@ -125,7 +123,7 @@ export default function CheckoutPage() {
                     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                     body: JSON.stringify({
                         ...newOrder,
-                        rawTotals: { subtotal, transactionFee, total },
+                        rawTotals: { subtotal, total },
                         shipping: { name: values.name, address: values.address, city: values.city, pincode: values.pincode },
                         paymentMethod: values.paymentMethod,
                     }),
@@ -272,10 +270,6 @@ export default function CheckoutPage() {
                             <div className="flex justify-between">
                                 <span>Subtotal</span>
                                 <span>₹{subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-muted-foreground">
-                                <span>Transaction Fee (2.5%)</span>
-                                <span>₹{transactionFee.toFixed(2)}</span>
                             </div>
                             <Separator />
                             <div className="flex justify-between font-bold text-lg">

@@ -9,17 +9,22 @@ const nextConfig: NextConfig = {
         '*.github.dev',
         'localhost:3000',
         '127.0.0.1:3000',
+        'kalaconnect.com',
+        'www.kalaconnect.com',
+        '*.vercel.app',
       ],
     },
   },
 
-  typescript: {
-    ignoreBuildErrors: true,
+  webpack: (config) => {
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      /Critical dependency/,
+    ];
+    return config;
   },
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
 
   images: {
     remotePatterns: [
