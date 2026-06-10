@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: '/register',
+    canonical: 'https://kalaconnect.me/register',
   },
   robots: {
     index: true,

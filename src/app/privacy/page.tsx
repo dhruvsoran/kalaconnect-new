@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: '/privacy',
+    canonical: 'https://kalaconnect.me/privacy',
   },
 };
 

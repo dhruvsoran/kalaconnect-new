@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: '/cookies',
+    canonical: 'https://kalaconnect.me/cookies',
   },
 };
 

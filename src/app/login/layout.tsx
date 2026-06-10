@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: '/login',
+    canonical: 'https://kalaconnect.me/login',
   },
   robots: {
     index: false,

@@ -7,7 +7,7 @@ export function OrganizationSchema() {
     name: 'कलाConnect',
     alternateName: 'KalaConnect',
     url: 'https://kalaconnect.me',
-    logo: 'https://kalaconnect.me/favicon.svg',
+    logo: 'https://kalaconnect.me/logo.png',
     description: 'AI-powered digital marketplace connecting Indian artisans directly with art lovers worldwide. Discover authentic handcrafted paintings, sculptures, and traditional crafts.',
     foundingDate: '2024',
     address: {

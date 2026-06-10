@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: 'https://kalaconnect.me/explore',
   },
   alternates: {
-    canonical: '/explore',
+    canonical: 'https://kalaconnect.me/explore',
   },
 };
 

@@ -61,6 +61,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+  },
   alternates: {
     canonical: 'https://kalaconnect.me',
   },
@@ -74,9 +77,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${ptSans.variable} ${playfair.variable}`}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/favicon.svg" />
+        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="apple-touch-icon" href="/favicon-180x180.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0a0a0a" />
       </head>

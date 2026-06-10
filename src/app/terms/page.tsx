@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   alternates: {
-    canonical: '/terms',
+    canonical: 'https://kalaconnect.me/terms',
   },
 };
 
