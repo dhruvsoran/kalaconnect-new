@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+    google:'4Qv0hWyMwDVhoz6riJz8zRr_rxYVtkjy4jiLVr03pTk',
   },
   alternates: {
     canonical: 'https://kalaconnect.me',
