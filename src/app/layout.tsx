@@ -83,6 +83,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon-180x180.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0a0a0a" />
+        <meta name="google-adsense-account" content="ca-pub-8760219681435243" />
       </head>
       <body className="font-body antialiased min-h-screen relative">
         <OrganizationSchema />
