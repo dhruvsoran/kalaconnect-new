@@ -74,7 +74,7 @@ export function SiteHeader() {
                                 <span className="sr-only">Toggle Menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-[300px]">
+                        <SheetContent side="right" className="w-[85vw] max-w-sm">
                             <div className="grid gap-6 py-6">
                                 <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline" onClick={() => setOpen(false)}>
                                     <KalaConnectIcon className="h-7 w-7 text-primary" />

@@ -1,5 +1,5 @@
 import { PT_Sans, Playfair_Display } from 'next/font/google';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
@@ -67,6 +67,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://kalaconnect.me',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
