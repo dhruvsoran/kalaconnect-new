@@ -30,8 +30,18 @@ export interface UserProfile {
   heritage?: string;
   avatar?: string;
   role: 'buyer' | 'artisan' | 'admin';
+  emailVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface VerificationToken {
+  _id?: string;
+  userId: string;
+  email: string;
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
 }
 
 export interface Order {

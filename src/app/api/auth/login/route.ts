@@ -43,6 +43,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
 
+  // Check email verification
+  if (user.emailVerified === false) {
+    logAuth('warn', 'Login attempt with unverified email', `Email: ${email}`);
+    return NextResponse.json(
+      { error: 'Please verify your email before logging in', needsVerification: true, email: user.email },
+      { status: 403 }
+    );
+  }
+
   const userId = user.id || user._id?.toString?.();
   const token = signToken({ sub: userId, email: user.email });
 
@@ -50,5 +59,5 @@ export async function POST(req: Request) {
     userId, userEmail: email, userRole: user.role || 'buyer',
   });
 
-  return NextResponse.json({ token, user: { id: userId, email: user.email, name: user.name || null, role: user.role || 'buyer' } });
+  return NextResponse.json({ token, user: { id: userId, email: user.email, name: user.name || null, role: user.role || 'buyer', emailVerified: user.emailVerified !== false } });
 }

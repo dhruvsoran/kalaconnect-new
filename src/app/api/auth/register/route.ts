@@ -2,10 +2,10 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { hashPassword } from '@/lib/password';
-import { signToken } from '@/lib/jwt';
 import { validatePassword } from '@/lib/password-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { validateEmail, validateName, sanitizeInput, getClientIp } from '@/lib/validation';
+import { createVerificationToken, sendVerificationEmail } from '@/lib/verification';
 
 async function logAuth(level: string, message: string, details: string, extra?: Record<string, any>) {
   try {
@@ -61,13 +61,36 @@ export async function POST(req: Request) {
   const userRole = allowedRoles.includes(role) ? role : 'buyer';
 
   const hash = hashPassword(password);
-  const res = await users.insertOne({ email: sanitizedEmail, password: hash, name: sanitizedName, role: userRole, createdAt: new Date() });
-  const user = { id: res.insertedId?.toString?.() || null, email: sanitizedEmail, name: sanitizedName, role: userRole };
-  const token = signToken({ sub: user.id, email: user.email });
-
-  logAuth('success', 'New user registered', `Email: ${sanitizedEmail}, Role: ${userRole}, Name: ${sanitizedName || 'N/A'}`, {
-    userId: user.id, userEmail: sanitizedEmail, userRole,
+  const res = await users.insertOne({
+    email: sanitizedEmail,
+    password: hash,
+    name: sanitizedName,
+    role: userRole,
+    emailVerified: false,
+    createdAt: new Date(),
   });
 
-  return NextResponse.json({ token, user });
+  const userId = res.insertedId?.toString?.() || '';
+
+  // Send verification email
+  if (userId) {
+    try {
+      const token = await createVerificationToken(userId, sanitizedEmail);
+      await sendVerificationEmail(sanitizedEmail, token, sanitizedName || undefined);
+    } catch (e) {
+      console.error('Failed to send verification email:', e);
+    }
+  }
+
+  const user = { id: userId, email: sanitizedEmail, name: sanitizedName, role: userRole, emailVerified: false };
+
+  logAuth('success', 'New user registered', `Email: ${sanitizedEmail}, Role: ${userRole}, Name: ${sanitizedName || 'N/A'}`, {
+    userId, userEmail: sanitizedEmail, userRole,
+  });
+
+  return NextResponse.json({
+    message: 'Account created. Please check your email to verify your account.',
+    needsVerification: true,
+    user,
+  });
 }

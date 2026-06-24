@@ -15,5 +15,13 @@ export async function GET(req: Request) {
   const user = await users.findOne({ email: payload.email });
   if (!user) return NextResponse.json({ user: null });
 
-  return NextResponse.json({ user: { id: user._id.toString(), email: user.email, name: user.name || null, role: user.role || 'buyer' } });
+  return NextResponse.json({
+    user: {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name || null,
+      role: user.role || 'buyer',
+      emailVerified: user.emailVerified !== false,
+    },
+  });
 }

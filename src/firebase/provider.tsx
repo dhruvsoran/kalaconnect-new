@@ -6,7 +6,7 @@ type FirebaseContextType = {
   firebaseApp: null;
   firestore: null;
   auth: null;
-  currentUser: { id: string; email: string; name?: string; role?: string } | null;
+  currentUser: { id: string; email: string; name?: string; role?: string; emailVerified?: boolean } | null;
   loading: boolean;
 };
 
@@ -19,7 +19,7 @@ const FirebaseContext = createContext<FirebaseContextType>({
 });
 
 export const FirebaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<null | { id: string; email: string; name?: string; role?: string }>(null);
+  const [currentUser, setCurrentUser] = useState<null | { id: string; email: string; name?: string; role?: string; emailVerified?: boolean }>(null);
   const [loading, setLoading] = useState(true);
 
   const loadCurrentUser = async () => {

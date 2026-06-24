@@ -10,11 +10,34 @@ import { Label } from '@/components/ui/label';
 import { KalaConnectIcon } from '@/components/icons';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Check, X } from 'lucide-react';
+import { Loader2, Check, X, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
 import { validatePassword } from '@/lib/password-validation';
 import { cn } from '@/lib/utils';
+
+function GoogleIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24">
+      <path
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+        fill="#4285F4"
+      />
+      <path
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        fill="#34A853"
+      />
+      <path
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        fill="#EA4335"
+      />
+    </svg>
+  );
+}
 
 function RegisterForm() {
   const router = useRouter();
@@ -29,6 +52,8 @@ function RegisterForm() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
 
   const passwordValidation = useMemo(() => validatePassword(password), [password]);
 
@@ -43,31 +68,88 @@ function RegisterForm() {
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
-      const { token, user } = json;
-      if (typeof window !== 'undefined' && token) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('isLoggedIn', 'true');
-        if (user?.role) localStorage.setItem('userRole', user.role);
-        if (user?.id) localStorage.setItem('userId', user.id);
-        window.dispatchEvent(new Event('auth-change'));
-      }
 
+      setRegisteredEmail(email);
       toast({
-        title: "Account created!",
-        description: `Welcome to कलाConnect, ${fullName}!`,
+        title: 'Account created!',
+        description: 'Please check your email to verify your account.',
       });
-
-      router.push('/dashboard');
     } catch (error: any) {
       toast({
-        variant: "destructive",
-        title: "Registration Failed",
-        description: error.message || "An error occurred during sign up.",
+        variant: 'destructive',
+        title: 'Registration Failed',
+        description: error.message || 'An error occurred during sign up.',
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleResendVerification = async () => {
+    if (!registeredEmail) return;
+    setIsResending(true);
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: registeredEmail }),
+      });
+      const json = await res.json();
+      toast({
+        title: 'Email sent',
+        description: json.message || json.error || 'Check your inbox.',
+      });
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to resend verification email.',
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  if (registeredEmail) {
+    return (
+      <Card className="mx-auto max-w-sm w-full shadow-2xl">
+        <CardHeader>
+          <div className="flex justify-center mb-4">
+            <Link href="/" className="flex items-center gap-2 font-bold text-2xl">
+              <KalaConnectIcon className="h-8 w-8 text-primary" />
+              <span className="font-headline">कलाConnect</span>
+            </Link>
+          </div>
+          <div className="flex justify-center mb-2">
+            <Mail className="h-16 w-16 text-primary" />
+          </div>
+          <CardTitle className="text-2xl font-headline text-center">Check Your Email</CardTitle>
+          <CardDescription className="text-center">
+            We sent a verification link to <strong>{registeredEmail}</strong>.
+            Please click the link in the email to verify your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground text-center">
+            Didn&apos;t receive the email? Check your spam folder.
+          </p>
+          <Button
+            className="w-full"
+            onClick={handleResendVerification}
+            disabled={isResending}
+          >
+            {isResending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Resend Verification Email
+          </Button>
+          <Link href="/login">
+            <Button className="w-full" variant="outline">
+              Go to Login
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -90,106 +172,124 @@ function RegisterForm() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleRegister} className="grid gap-4">
-              <div className="grid gap-2">
-                <Label>I want to join as a...</Label>
-                <RadioGroup value={role} onValueChange={(val) => setRole(val as any)} className="grid grid-cols-2 gap-4">
-                  <div>
-                    <RadioGroupItem value="buyer" id="buyer" className="peer sr-only" />
-                    <Label
-                      htmlFor="buyer"
-                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary w-full text-center cursor-pointer transition-all font-headline"
-                    >
-                      Buyer
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem value="artisan" id="artisan" className="peer sr-only" />
-                    <Label
-                      htmlFor="artisan"
-                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary w-full text-center cursor-pointer transition-all font-headline"
-                    >
-                      Artisan
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" placeholder="Your Name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
-                  minLength={8}
-                />
-                {passwordFocused && password.length > 0 && (
-                  <div className="space-y-2 mt-1">
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "h-1 flex-1 rounded-full transition-colors",
-                            i <= passwordValidation.score
-                              ? passwordValidation.strength === 'strong'
-                                ? "bg-green-500"
-                                : passwordValidation.strength === 'good'
-                                ? "bg-emerald-500"
-                                : passwordValidation.strength === 'fair'
-                                ? "bg-amber-500"
-                                : "bg-red-500"
-                              : "bg-muted"
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {passwordValidation.strength === 'strong' && "Strong password"}
-                      {passwordValidation.strength === 'good' && "Good — add a special character for strong"}
-                      {passwordValidation.strength === 'fair' && "Fair — add more character types"}
-                      {passwordValidation.strength === 'weak' && "Weak — needs more requirements"}
-                    </p>
-                    <div className="grid grid-cols-2 gap-1">
-                      {[
-                        { label: '8+ characters', met: password.length >= 8 },
-                        { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
-                        { label: 'Lowercase letter', met: /[a-z]/.test(password) },
-                        { label: 'Number', met: /[0-9]/.test(password) },
-                        { label: 'Special character', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
-                      ].map((req) => (
-                        <div key={req.label} className="flex items-center gap-1 text-xs">
-                          {req.met ? (
-                            <Check className="h-3 w-3 text-green-500" />
-                          ) : (
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          )}
-                          <span className={req.met ? "text-green-500" : "text-muted-foreground"}>
-                            {req.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button type="submit" className="w-full" disabled={isLoading || (password.length > 0 && !passwordValidation.valid)}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Account"}
+            <div className="grid gap-4">
+              <a href="/api/auth/google">
+                <Button variant="outline" className="w-full" type="button">
+                  <GoogleIcon />
+                  <span className="ml-2">Sign up with Google</span>
                 </Button>
-              </motion.div>
-            </form>
+              </a>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">or continue with email</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleRegister} className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label>I want to join as a...</Label>
+                  <RadioGroup value={role} onValueChange={(val) => setRole(val as any)} className="grid grid-cols-2 gap-4">
+                    <div>
+                      <RadioGroupItem value="buyer" id="buyer" className="peer sr-only" />
+                      <Label
+                        htmlFor="buyer"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary w-full text-center cursor-pointer transition-all font-headline"
+                      >
+                        Buyer
+                      </Label>
+                    </div>
+                    <div>
+                      <RadioGroupItem value="artisan" id="artisan" className="peer sr-only" />
+                      <Label
+                        htmlFor="artisan"
+                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary w-full text-center cursor-pointer transition-all font-headline"
+                      >
+                        Artisan
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input id="fullName" placeholder="Your Name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                    minLength={8}
+                  />
+                  {passwordFocused && password.length > 0 && (
+                    <div className="space-y-2 mt-1">
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <div
+                            key={i}
+                            className={cn(
+                              "h-1 flex-1 rounded-full transition-colors",
+                              i <= passwordValidation.score
+                                ? passwordValidation.strength === 'strong'
+                                  ? "bg-green-500"
+                                  : passwordValidation.strength === 'good'
+                                  ? "bg-emerald-500"
+                                  : passwordValidation.strength === 'fair'
+                                  ? "bg-amber-500"
+                                  : "bg-red-500"
+                                : "bg-muted"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {passwordValidation.strength === 'strong' && "Strong password"}
+                        {passwordValidation.strength === 'good' && "Good — add a special character for strong"}
+                        {passwordValidation.strength === 'fair' && "Fair — add more character types"}
+                        {passwordValidation.strength === 'weak' && "Weak — needs more requirements"}
+                      </p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {[
+                          { label: '8+ characters', met: password.length >= 8 },
+                          { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
+                          { label: 'Lowercase letter', met: /[a-z]/.test(password) },
+                          { label: 'Number', met: /[0-9]/.test(password) },
+                          { label: 'Special character', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
+                        ].map((req) => (
+                          <div key={req.label} className="flex items-center gap-1 text-xs">
+                            {req.met ? (
+                              <Check className="h-3 w-3 text-green-500" />
+                            ) : (
+                              <X className="h-3 w-3 text-muted-foreground" />
+                            )}
+                            <span className={req.met ? "text-green-500" : "text-muted-foreground"}>
+                              {req.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button type="submit" className="w-full" disabled={isLoading || (password.length > 0 && !passwordValidation.valid)}>
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Account"}
+                  </Button>
+                </motion.div>
+              </form>
+            </div>
             <div className="mt-4 text-center text-sm">
               Already a member?{" "}
               <Link href="/login" className="underline font-bold">
