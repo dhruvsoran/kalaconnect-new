@@ -14,8 +14,8 @@ import {
   ShoppingCart,
   MessageCircle,
   Share2,
-  UserPlus,
-  Volume2,
+  Search,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -42,12 +42,18 @@ type Product = {
   artisanId: string;
   artisanName: string;
   status: string;
+  category?: string;
+  tags?: string[];
 };
+
+const categories = ['All', 'Paintings', 'Sculptures', 'Textiles', 'Pottery', 'Jewelry', 'Other'];
 
 export default function ExplorePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     async function fetchProducts() {
@@ -67,9 +73,22 @@ export default function ExplorePage() {
     fetchProducts();
   }, []);
 
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = searchQuery === '' ||
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.artisanName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.tags && product.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
+    
+    const matchesCategory = selectedCategory === 'All' ||
+      (product.category && product.category.toLowerCase() === selectedCategory.toLowerCase());
+    
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <FadeIn direction="down">
           <h1 className="text-3xl md:text-4xl font-bold font-headline">Discovery Center</h1>
         </FadeIn>
@@ -78,15 +97,42 @@ export default function ExplorePage() {
         </p>
       </div>
 
+      <div className="mb-8 space-y-4">
+        <div className="relative max-w-md mx-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search artworks, artisans, or styles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-muted-foreground mr-1" />
+          {categories.map((cat) => (
+            <Button
+              key={cat}
+              variant={selectedCategory === cat ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory(cat)}
+              className="text-xs"
+            >
+              {cat}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
             <div key={i} className="rounded-lg border bg-card animate-pulse h-[400px]" />
           ))}
         </div>
-      ) : products.length > 0 ? (
+      ) : filteredProducts.length > 0 ? (
         <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8" staggerDelay={0.06}>
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <StaggerItem key={product.id}>
               <ProductCard product={product} />
             </StaggerItem>
@@ -107,15 +153,25 @@ export default function ExplorePage() {
       ) : (
         <Card className="m-4">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Marketplace Coming Soon</CardTitle>
+            <CardTitle className="font-headline text-2xl">
+              {searchQuery || selectedCategory !== 'All' ? 'No Results Found' : 'Marketplace Coming Soon'}
+            </CardTitle>
             <CardDescription>
-              Our artisans are busy creating! Check back soon to see their beautiful products.
+              {searchQuery || selectedCategory !== 'All'
+                ? 'Try adjusting your search or filters to find what you are looking for.'
+                : 'Our artisans are busy creating! Check back soon to see their beautiful products.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="mt-4">
-              <Link href="/">Back to Home</Link>
-            </Button>
+            {(searchQuery || selectedCategory !== 'All') ? (
+              <Button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }} className="mt-4">
+                Clear Filters
+              </Button>
+            ) : (
+              <Button asChild className="mt-4">
+                <Link href="/">Back to Home</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
@@ -280,18 +336,22 @@ function ProductCard({ product }: { product: Product }) {
             </Button>
             <TTSButton text={`${product.name}. Created by ${product.artisanName}. ${product.description}`} />
           </div>
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={800}
-            height={800}
-            className="aspect-square object-cover w-full group-hover:scale-105 transition-transform duration-300"
-            itemProp="image"
-          />
+          <Link href={`/product/${product.id}`}>
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={800}
+              height={800}
+              className="aspect-square object-cover w-full group-hover:scale-105 transition-transform duration-300"
+              itemProp="image"
+            />
+          </Link>
         </CardHeader>
         <CardContent className="p-4 flex-grow space-y-2">
           <div className="flex items-center justify-between">
-            <h3 itemProp="name" className="font-bold text-lg font-headline truncate">{product.name}</h3>
+            <Link href={`/product/${product.id}`} className="hover:underline">
+              <h3 itemProp="name" className="font-bold text-lg font-headline truncate">{product.name}</h3>
+            </Link>
             <Badge variant="secondary" className="text-[10px] h-5 shrink-0" itemProp="offers" itemScope itemType="https://schema.org/Offer">
               <span itemProp="priceCurrency" content="INR" />₹<span itemProp="price">{product.price}</span>
             </Badge>

@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Menu, Palette, HelpCircle, Store, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, Palette, HelpCircle, Store, LayoutDashboard, LogOut, BookOpen } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { ThemeToggle } from "./theme-toggle";
 import { useUser } from "@/firebase";
@@ -30,6 +30,7 @@ export function SiteHeader() {
 
     const navLinks = [
         { href: "/explore", label: "Explore", icon: <Palette className="h-4 w-4" /> },
+        { href: "/blog", label: "Blog", icon: <BookOpen className="h-4 w-4" /> },
         { href: "/register?role=artisan", label: "Sell on KalaConnect", icon: <Store className="h-4 w-4" /> },
     ];
 

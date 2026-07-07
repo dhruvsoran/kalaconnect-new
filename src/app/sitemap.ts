@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next';
+import { getDb } from '@/lib/mongodb';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://kalaconnect.me';
 
-  return [
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -15,6 +16,48 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/madhubani-art-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/warli-art-tribal-paintings`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/tanjore-paintings-gold-leaf`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/how-to-start-art-collection`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/artisan-spotlight-rajasthani-miniatures`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/indian-textile-heritage`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/about`,
@@ -47,4 +90,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
   ];
+
+  let productPages: MetadataRoute.Sitemap = [];
+  try {
+    const db = await getDb();
+    const products = await db
+      .collection('products')
+      .find({ status: 'Active' })
+      .project({ _id: 1, updatedAt: 1 })
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .toArray();
+
+    productPages = products.map((p: any) => ({
+      url: `${baseUrl}/product/${p._id.toString()}`,
+      lastModified: p.updatedAt || new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }));
+  } catch {
+    // If DB is unavailable, skip product pages
+  }
+
+  return [...staticPages, ...productPages];
 }
