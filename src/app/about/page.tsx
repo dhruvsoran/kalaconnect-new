@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { KalaConnectIcon } from '@/components/icons';
+import { getPlatformStats } from '@/lib/db';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://kalaconnect.me/about' },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const stats = await getPlatformStats();
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-16">
@@ -48,15 +50,15 @@ export default function AboutPage() {
               </p>
               <div className="grid md:grid-cols-3 gap-6 mt-6">
                 <div className="text-center p-4">
-                  <div className="text-3xl font-bold text-primary mb-2">500+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">{stats.artisanCount}+</div>
                   <div className="text-sm text-muted-foreground">Artisans Empowered</div>
                 </div>
                 <div className="text-center p-4">
-                  <div className="text-3xl font-bold text-primary mb-2">5000+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">{stats.productCount}+</div>
                   <div className="text-sm text-muted-foreground">Artworks Listed</div>
                 </div>
                 <div className="text-center p-4">
-                  <div className="text-3xl font-bold text-primary mb-2">10K+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">{stats.buyerCount}+</div>
                   <div className="text-sm text-muted-foreground">Happy Customers</div>
                 </div>
               </div>
