@@ -3,43 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-// Google Consent Mode v2 - default to denied
-function initializeConsentMode() {
-  if (typeof window === 'undefined') return;
-  
-  // @ts-ignore
-  window.dataLayer = window.dataLayer || [];
-  // @ts-ignore
-  function gtag(...args: any[]) {
-    // @ts-ignore
-    window.dataLayer.push(args);
-  }
-  
-  // Default state: all denied
-  gtag('consent', 'default', {
-    ad_storage: 'denied',
-    analytics_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    functionality_storage: 'denied',
-    personalization_storage: 'denied',
-    security_storage: 'granted', // Always allowed
-  });
-}
+const GA_ID = 'G-69SMPF6Z3D';
 
-// Load Google Analytics only after consent
-function loadGoogleAnalytics() {
-  if (typeof window === 'undefined') return;
-  if (document.getElementById('ga-script')) return; // Already loaded
-  
-  const gtagScript = document.createElement('script');
-  gtagScript.id = 'ga-script';
-  gtagScript.async = true;
-  gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-69SMPF6Z3D'; // Replace with actual GA ID
-  document.head.appendChild(gtagScript);
-}
-
-// Update consent and load scripts
+// Update consent status with Google
 function updateConsent(consent: boolean) {
   if (typeof window === 'undefined') return;
   
@@ -57,20 +23,13 @@ function updateConsent(consent: boolean) {
       analytics_storage: 'granted',
       ad_user_data: 'granted',
       ad_personalization: 'granted',
-      functionality_storage: 'granted',
-      personalization_storage: 'granted',
     });
-    
-    // Load Google Analytics after consent
-    loadGoogleAnalytics();
   } else {
     gtag('consent', 'update', {
       ad_storage: 'denied',
       analytics_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
-      functionality_storage: 'denied',
-      personalization_storage: 'denied',
     });
   }
 }
@@ -80,9 +39,6 @@ export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Initialize consent mode on mount
-    initializeConsentMode();
-    
     const stored = typeof window !== 'undefined' ? localStorage.getItem('cookiesAccepted') : null;
     if (stored === 'true') {
       setAccepted(true);

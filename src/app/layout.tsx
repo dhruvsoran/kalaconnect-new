@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { WebSiteSchema } from '@/components/seo/WebSiteSchema';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
+import { GoogleAnalytics } from '@/components/google-analytics';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -91,6 +92,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0a0a0a" />
         <meta name="google-adsense-account" content="ca-pub-8760219681435243" />
+        <GoogleAnalytics />
       </head>
       <body className="font-body antialiased min-h-screen relative">
         <OrganizationSchema />
