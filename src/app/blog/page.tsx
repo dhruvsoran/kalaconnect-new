@@ -66,6 +66,38 @@ const articles = [
     readTime: '9 min read',
     date: 'June 2025',
   },
+  {
+    slug: 'buying-indian-art-online-guide',
+    title: 'Buying Indian Art Online: How to Spot Authentic Pieces and Avoid Fakes',
+    excerpt: 'The online art marketplace is booming, but how do you know you are getting authentic handcrafted Indian art? Learn the telltale signs of genuine craftsmanship.',
+    category: 'Collecting',
+    readTime: '7 min read',
+    date: 'July 2025',
+  },
+  {
+    slug: 'indian-sculpture-traditions',
+    title: 'Indian Sculpture: From Bronze Statues to Stone Carvings',
+    excerpt: 'Explore the rich tradition of Indian sculpture — from the iconic Chola bronzes to intricate stone carvings of Khajuraho and the living traditions of today.',
+    category: 'Art Forms',
+    readTime: '8 min read',
+    date: 'July 2025',
+  },
+  {
+    slug: 'supporting-indian-artisans',
+    title: 'Why Supporting Indian Artisans Matters More Than Ever',
+    excerpt: 'India\'s artisan community faces an uncertain future. Discover why buying handcrafted art directly from makers is an act of cultural preservation.',
+    category: 'Heritage',
+    readTime: '6 min read',
+    date: 'July 2025',
+  },
+  {
+    slug: 'pichwai-paintings-rajasthan',
+    title: 'Pichwai Paintings: The Stunning Devotional Art of Rajasthan',
+    excerpt: 'Discover Pichwai — the breathtaking cloth paintings from Nathdwara, Rajasthan, depicting Lord Krishna in vivid detail with natural pigments and gold leaf.',
+    category: 'Art Forms',
+    readTime: '7 min read',
+    date: 'July 2025',
+  },
 ];
 
 export default function BlogPage() {
