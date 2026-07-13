@@ -62,6 +62,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
     const error = searchParams.get('error');
+    const state = searchParams.get('state');
 
     if (error) {
       return NextResponse.redirect(
@@ -72,6 +73,17 @@ export async function GET(req: Request) {
     if (!code) {
       return NextResponse.redirect(
         new URL('/login?error=google-no-code', req.url)
+      );
+    }
+
+    // Verify state parameter (CSRF protection)
+    const cookies = req.headers.get('cookie') || '';
+    const stateCookie = cookies.split(';').find(c => c.trim().startsWith('oauth_state='));
+    const savedState = stateCookie?.split('=')[1];
+    
+    if (!state || !savedState || state !== savedState) {
+      return NextResponse.redirect(
+        new URL('/login?error=google-invalid-state', req.url)
       );
     }
 
@@ -129,15 +141,36 @@ export async function GET(req: Request) {
     const userId = user._id.toString();
     const jwtToken = signToken({ sub: userId, email: user.email });
 
+    // Set JWT in HTTP-only cookie instead of URL params
     const redirectUrl = new URL('/login', req.url);
     redirectUrl.searchParams.set('google-login', 'success');
-    redirectUrl.searchParams.set('token', jwtToken);
-    redirectUrl.searchParams.set('userId', userId);
-    redirectUrl.searchParams.set('userEmail', user.email);
-    redirectUrl.searchParams.set('userName', user.name || '');
     redirectUrl.searchParams.set('userRole', user.role || 'buyer');
 
-    return NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(redirectUrl);
+    
+    // Set secure HTTP-only cookie for the JWT token
+    response.cookies.set('auth_token', jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
+    });
+
+    // Set user info in a separate non-httpOnly cookie for client-side reading
+    response.cookies.set('user_info', JSON.stringify({
+      id: userId,
+      email: user.email,
+      name: user.name || '',
+      role: user.role || 'buyer',
+    }), {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
+    });
+
+    return response;
   } catch (err) {
     console.error('Google OAuth callback error:', err);
     return NextResponse.redirect(

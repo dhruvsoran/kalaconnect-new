@@ -1,165 +1,186 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions',
-  description: 'Read the Terms & Conditions for using कलाConnect - the Indian art marketplace connecting artisans with art lovers worldwide.',
-  openGraph: {
-    title: 'Terms & Conditions | कलाConnect',
-    description: 'Terms & Conditions for कलाConnect Indian Art Marketplace',
-    url: 'https://kalaconnect.me/terms',
-    type: 'website',
-  },
-  alternates: {
-    canonical: 'https://kalaconnect.me/terms',
-  },
+  title: 'Terms of Service',
+  description: 'Terms of Service for कलाConnect — the Indian Art Marketplace. Read our terms and conditions for using our platform.',
+  alternates: { canonical: 'https://kalaconnect.me/terms' },
 };
 
 export default function TermsPage() {
   return (
-    <main className="container mx-auto p-8 max-w-4xl">
-      <h1 className="text-4xl font-headline font-bold mb-2">Terms & Conditions</h1>
-      <p className="text-sm text-muted-foreground mb-8">Last updated: June 2025</p>
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <Link href="/" className="flex items-center justify-center gap-2 font-bold text-2xl mb-6">
+            <span className="font-headline">कलाConnect</span>
+          </Link>
+          <h1 className="text-4xl font-headline font-bold mb-4">Terms of Service</h1>
+          <p className="text-lg text-muted-foreground">
+            Last updated: January 2025
+          </p>
+        </div>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">1. Acceptance of Terms</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          By accessing or using the कलाConnect platform (&quot;Service&quot;), you agree to be bound by these Terms & Conditions. If you do not agree, please do not use the Service.
-        </p>
-      </section>
+        <div className="space-y-8">
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">1. Acceptance of Terms</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                By accessing and using कलाConnect (&quot;the Platform&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Platform.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                कलाConnect is a digital marketplace connecting Indian artisans with art lovers worldwide. These terms govern your use of our website, services, and any related applications.
+              </p>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">2. Eligibility</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          You must be at least 13 years old to use the Service. By creating an account, you represent that you meet this age requirement and have the legal capacity to enter into these terms.
-        </p>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">2. User Accounts</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                To access certain features, you must create an account. You agree to:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>Provide accurate, current, and complete information during registration</li>
+                <li>Maintain the security of your password and account</li>
+                <li>Promptly update your account information if it changes</li>
+                <li>Accept responsibility for all activities that occur under your account</li>
+                <li>Notify us immediately of any unauthorized use of your account</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">3. Accounts</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>You are responsible for maintaining the confidentiality of your account credentials</li>
-          <li>You are responsible for all activities that occur under your account</li>
-          <li>You must notify us immediately of any unauthorized use of your account</li>
-          <li>One person may not maintain more than one account</li>
-          <li>We reserve the right to suspend or terminate accounts that violate these terms</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">3. For Artisans</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                If you register as an artisan, you agree to:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>List only authentic, handcrafted products that you have created</li>
+                <li>Provide accurate descriptions and images of your products</li>
+                <li>Fulfill orders in a timely manner and maintain quality standards</li>
+                <li>Respond to customer inquiries within 48 hours</li>
+                <li>Comply with all applicable laws and regulations</li>
+                <li>Accept that कलाConnect charges a commission on sales (currently 0% during launch)</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">4. For Buyers</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>All purchases are subject to availability</li>
-          <li>Prices are set by individual artisans and may change without notice</li>
-          <li>Payment must be completed before order processing begins</li>
-          <li>You are responsible for providing accurate shipping information</li>
-          <li>Artworks are handmade — slight variations from photos are normal and part of the charm</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">4. For Buyers</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                If you use कलाConnect as a buyer, you agree to:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>Pay for products you order through our payment system</li>
+                <li>Provide accurate shipping information</li>
+                <li>Inspect products upon delivery and report any issues promptly</li>
+                <li>Leave honest reviews and feedback for artisans</li>
+                <li>Understand that all sales of handcrafted items are final (unless defective)</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">5. For Artisans</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>You must be the original creator or authorized seller of all listed artworks</li>
-          <li>Product descriptions and images must be accurate and honest</li>
-          <li>Orders must be fulfilled within the stated timeframe</li>
-          <li>You are responsible for safely packaging and shipping your products</li>
-          <li>You retain ownership of your intellectual property; by listing, you grant us a license to display your work on the Service</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">5. Products and Pricing</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                All products on कलाConnect are handcrafted and unique. Please note:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>Product images are for illustrative purposes; actual items may vary slightly</li>
+                <li>Prices are set by artisans and include all applicable taxes</li>
+                <li>कलाConnect reserves the right to modify prices with notice</li>
+                <li>Product availability is subject to change without notice</li>
+                <li>We do not guarantee the authenticity of products listed by third-party sellers</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">6. Orders & Payments</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>All orders are subject to acceptance by the artisan</li>
-          <li>Payment is processed securely through our third-party payment providers</li>
-          <li>We do not store your credit card or banking information</li>
-          <li>Prices are listed in Indian Rupees (INR) unless otherwise stated</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">6. Orders and Payment</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                When you place an order:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>Your order constitutes an offer to purchase the product</li>
+                <li>We reserve the right to accept or reject any order</li>
+                <li>Payment must be received before order processing</li>
+                <li>Cash on Delivery (COD) is available for select areas</li>
+                <li>Refunds are processed according to our Return Policy</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">7. Shipping & Delivery</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>Shipping times vary based on artisan location and destination</li>
-          <li>Artisans are responsible for shipping products within the stated timeframe</li>
-          <li>Risk of loss and title for items pass to you upon delivery</li>
-          <li>International shipments may be subject to customs duties and taxes, which are the buyer&apos;s responsibility</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">7. Intellectual Property</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                All content on कलाConnect, including text, graphics, logos, and software, is the property of कलाConnect or its content suppliers and is protected by Indian and international copyright laws.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Artisans retain ownership of their product designs and images. By listing products on कलाConnect, artisans grant us a non-exclusive license to display and promote their products on our Platform.
+              </p>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">8. Returns & Refunds</h2>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>Since artworks are handmade and unique, returns are accepted only for items that arrive damaged or significantly different from the listing</li>
-          <li>Return requests must be made within 7 days of delivery with photographic evidence</li>
-          <li>Refunds are processed to the original payment method within 10 business days of approval</li>
-          <li>Shipping costs are non-refundable unless the return is due to our error</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">8. Limitation of Liability</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                कलाConnect acts as an intermediary between artisans and buyers. We are not responsible for:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+                <li>The quality, safety, or legality of products listed</li>
+                <li>The accuracy of product descriptions or images</li>
+                <li>The ability of artisans to complete transactions</li>
+                <li>The ability of buyers to pay for products</li>
+                <li>Any disputes between artisans and buyers</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">9. Intellectual Property</h2>
-        <p className="text-muted-foreground leading-relaxed mb-3">
-          All content on the Service — including text, graphics, logos, and software — is the property of कलाConnect or its content suppliers and is protected by copyright law.
-        </p>
-        <p className="text-muted-foreground leading-relaxed">
-          Artisan artworks remain the intellectual property of the artisans. Artisans grant कलाConnect a non-exclusive license to display, promote, and market their artworks on the Service.
-        </p>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">9. Privacy</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Your use of कलाConnect is also governed by our{' '}
+                <Link href="/privacy" className="underline text-primary hover:text-primary/80">
+                  Privacy Policy
+                </Link>
+                , which is incorporated into these Terms by reference. Please review our Privacy Policy to understand our practices regarding your personal information.
+              </p>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">10. Prohibited Conduct</h2>
-        <p className="text-muted-foreground leading-relaxed mb-3">You agree not to:</p>
-        <ul className="list-disc list-inside text-muted-foreground space-y-2">
-          <li>Use the Service for any unlawful purpose</li>
-          <li>Post false, misleading, or fraudulent content</li>
-          <li>Harass, abuse, or harm other users</li>
-          <li>Attempt to gain unauthorized access to other accounts or systems</li>
-          <li>Use automated tools to access or scrape the Service</li>
-          <li>Infringe on the intellectual property rights of others</li>
-        </ul>
-      </section>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">10. Changes to Terms</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We reserve the right to modify these Terms at any time. Changes will be effective immediately upon posting on the Platform. Your continued use of कलाConnect after any changes constitutes acceptance of the new Terms. We encourage you to review these Terms periodically.
+              </p>
+            </CardContent>
+          </Card>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">11. Limitation of Liability</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          To the maximum extent permitted by law, कलाConnect shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service. Our total liability shall not exceed the amount you paid to us in the 12 months preceding the claim.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">12. Indemnification</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          You agree to indemnify and hold harmless कलाConnect and its officers, directors, employees, and agents from any claims, losses, damages, liabilities, and expenses arising from your use of the Service or violation of these terms.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">13. Governing Law</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          These Terms shall be governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Meerut, Uttar Pradesh, India.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">14. Changes to These Terms</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          We reserve the right to modify these Terms at any time. Changes will be effective upon posting to the Service. Your continued use after changes constitutes acceptance of the modified terms. We will notify you of significant changes via email or a notice on the Service.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-headline font-bold mb-3">15. Contact Us</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          If you have any questions about these Terms, please contact us:
-        </p>
-        <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-          <li>Email: <a href="mailto:support@kalaconnect.me" className="text-primary underline">support@kalaconnect.me</a></li>
-          <li>Phone: +91 7818093944</li>
-          <li>Address: Meerut, Uttar Pradesh, India</li>
-        </ul>
-      </section>
-    </main>
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-headline font-bold mb-4">11. Contact Us</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                If you have any questions about these Terms of Service, please contact us:
+              </p>
+              <div className="space-y-2 text-muted-foreground">
+                <p><strong>Email:</strong> support@kalaconnect.me</p>
+                <p><strong>Phone:</strong> +91 7818093944</p>
+                <p><strong>Address:</strong> Meerut, Uttar Pradesh, India</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 }

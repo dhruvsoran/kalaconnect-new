@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductSchema } from '@/components/seo/ProductSchema';
+import { ProductDetailClient } from './ProductDetailClient';
 
 interface ProductDoc {
   _id: ObjectId;
@@ -155,6 +156,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             </CardContent>
           </Card>
+
+          <ProductDetailClient product={product} />
         </div>
       </div>
     </main>

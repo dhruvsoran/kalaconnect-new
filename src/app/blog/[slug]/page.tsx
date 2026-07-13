@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { BlogPostingSchema } from '@/components/seo/BlogPostingSchema';
 
 const articles: Record<string, {
   title: string;
@@ -138,6 +139,13 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         <span className="mx-2">/</span>
         <span>{article.title}</span>
       </nav>
+
+      <BlogPostingSchema
+        title={article.title}
+        description={article.content[0]}
+        datePublished="2025-06-01"
+        url={`https://kalaconnect.me/blog/${slug}`}
+      />
 
       <article>
         <div className="mb-8">

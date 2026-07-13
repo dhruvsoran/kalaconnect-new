@@ -159,10 +159,11 @@ export async function getProducts(filters?: { status?: string; artisanId?: strin
     query.artisanId = filters.artisanId;
   }
   if (filters?.search) {
+    const escapedSearch = filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { name: { $regex: filters.search, $options: 'i' } },
-      { description: { $regex: filters.search, $options: 'i' } },
-      { tags: { $in: [new RegExp(filters.search, 'i')] } },
+      { name: { $regex: escapedSearch, $options: 'i' } },
+      { description: { $regex: escapedSearch, $options: 'i' } },
+      { tags: { $in: [new RegExp(escapedSearch, 'i')] } },
     ];
   }
   

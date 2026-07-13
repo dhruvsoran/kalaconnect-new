@@ -93,8 +93,6 @@ export default function CheckoutPage() {
   });
 
   async function onSubmit(values: z.infer<typeof checkoutSchema>) {
-    console.log("Simulating payment with:", values);
-
     // Create the new order
     const newOrder = {
         orderId: `#KC${Math.floor(Math.random() * 9000) + 1000}`,

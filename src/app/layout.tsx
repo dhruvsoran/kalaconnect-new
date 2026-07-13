@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { WebSiteSchema } from '@/components/seo/WebSiteSchema';
+import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -94,6 +95,7 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen relative">
         <OrganizationSchema />
         <WebSiteSchema />
+        <LocalBusinessSchema />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -15,28 +15,37 @@ interface LogOptions {
   duration?: number;
 }
 
+// In-memory log storage for development (replace with proper logging service in production)
+const logs: Array<LogOptions & { timestamp: Date }> = [];
+const MAX_LOGS = 1000;
+
 export async function logEvent(options: LogOptions): Promise<void> {
   try {
-    await fetch('/api/db/systemLogs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        level: options.level || 'info',
-        category: options.category || 'system',
-        message: options.message,
-        details: options.details || '',
-        userId: options.userId || '',
-        userEmail: options.userEmail || '',
-        userRole: options.userRole || '',
-        path: options.path || '',
-        method: options.method || '',
-        statusCode: options.statusCode || 0,
-        duration: options.duration || 0,
-      }),
-    });
+    // Store log in memory (for development)
+    if (process.env.NODE_ENV === 'development') {
+      logs.push({ ...options, timestamp: new Date() });
+      if (logs.length > MAX_LOGS) {
+        logs.shift(); // Remove oldest log
+      }
+    }
+    
+    // In production, you would send this to a logging service like:
+    // - Datadog, LogRocket, Sentry, etc.
+    // - Or your own API endpoint
+    
+    // For now, just log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      const logMessage = `[${options.level?.toUpperCase() || 'INFO'}] [${options.category || 'system'}] ${options.message}`;
+      if (options.level === 'error') {
+        console.error(logMessage, options.details || '');
+      } else if (options.level === 'warn') {
+        console.warn(logMessage, options.details || '');
+      } else {
+        console.log(logMessage, options.details || '');
+      }
+    }
   } catch (e) {
     // Silently fail - logging should not break the app
-    console.error('Failed to log event:', e);
   }
 }
 

@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { KalaConnectIcon } from '@/components/icons';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail } from 'lucide-react';
-import { useFirebase } from '@/firebase';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
 import { Suspense } from 'react';
@@ -42,7 +41,6 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { currentUser } = useFirebase();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,35 +69,31 @@ function LoginForm() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('google-login') === 'success') {
-      const token = params.get('token');
-      const userId = params.get('userId');
-      const userEmail = params.get('userEmail');
-      const userName = params.get('userName');
-      const userRole = params.get('userRole');
+      // Read user info from cookie instead of URL params
+      const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_info='));
+      if (userInfoCookie) {
+        try {
+          const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=').slice(1).join('=')));
+          
+          // Store user info in localStorage for client-side access
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userId', userInfo.id);
+          localStorage.setItem('userEmail', userInfo.email);
+          localStorage.setItem('userName', userInfo.name);
+          localStorage.setItem('userRole', userInfo.role);
+          window.dispatchEvent(new Event('auth-change'));
 
-      if (token) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('isLoggedIn', 'true');
-        if (userId) localStorage.setItem('userId', userId);
-        if (userEmail) localStorage.setItem('userEmail', userEmail);
-        if (userName) localStorage.setItem('userName', userName);
-        if (userRole) localStorage.setItem('userRole', userRole);
-        window.dispatchEvent(new Event('auth-change'));
-
-        toast({
-          title: 'Welcome!',
-          description: 'You have successfully signed in with Google.',
-        });
-        router.push(userRole === 'admin' ? '/admin' : '/dashboard');
+          toast({
+            title: 'Welcome!',
+            description: 'You have successfully signed in with Google.',
+          });
+          router.push(userInfo.role === 'admin' ? '/admin' : '/dashboard');
+        } catch (e) {
+          console.error('Failed to parse user info cookie');
+        }
       }
     }
   }, [router, toast]);
-
-  useEffect(() => {
-    if (currentUser) {
-      router.push(currentUser.role === 'admin' ? '/admin' : '/dashboard');
-    }
-  }, [currentUser, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +121,6 @@ function LoginForm() {
       if (json.error) throw new Error(json.error);
 
       if (typeof window !== 'undefined' && json.token) {
-        localStorage.setItem('token', json.token);
         localStorage.setItem('isLoggedIn', 'true');
         if (json.user?.role) localStorage.setItem('userRole', json.user.role);
         if (json.user?.id) localStorage.setItem('userId', json.user.id);

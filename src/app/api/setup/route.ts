@@ -5,9 +5,45 @@ import { signToken } from '@/lib/jwt';
 import { validatePassword } from '@/lib/password-validation';
 
 const SETUP_SECRET = process.env.SETUP_SECRET as string;
-if (!SETUP_SECRET) throw new Error('SETUP_SECRET environment variable is required');
+
+// Rate limiting: simple in-memory store
+const setupAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_ATTEMPTS = 3;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const attempt = setupAttempts.get(ip);
+  
+  if (!attempt || now > attempt.resetAt) {
+    setupAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (attempt.count >= MAX_ATTEMPTS) {
+    return false;
+  }
+  
+  attempt.count++;
+  return true;
+}
 
 export async function POST(req: Request) {
+  // Only allow in development or if SETUP_SECRET is set
+  if (process.env.NODE_ENV === 'production' && !SETUP_SECRET) {
+    return NextResponse.json({ error: 'Setup endpoint is disabled in production' }, { status: 403 });
+  }
+
+  // Rate limiting
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 });
+  }
+
+  if (!SETUP_SECRET) {
+    return NextResponse.json({ error: 'Setup not configured' }, { status: 500 });
+  }
+
   const body = await req.json();
   const { email, password, name, secret } = body;
 
@@ -17,6 +53,12 @@ export async function POST(req: Request) {
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
   }
 
   const passwordCheck = validatePassword(password);

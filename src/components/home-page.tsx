@@ -108,7 +108,7 @@ export function HomePage() {
             <div className="flex h-full">
               {heroImages.map((image, index) => (
                 <div className="relative flex-[0_0_100%] h-full" key={index}>
-                  <Image src={image.src} alt={image.alt} fill className="object-cover" priority={index === 0} />
+                  <Image src={image.src} alt={image.alt} fill className="object-cover" priority={index === 0} sizes="100vw" quality={75} fetchPriority={index === 0 ? 'high' : undefined} />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
                 </div>
               ))}
@@ -507,6 +507,8 @@ export function HomePage() {
                         width={300}
                         height={400}
                         className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 50vw, 300px"
+                        quality={75}
                       />
                     </div>
                     <div className="rounded-2xl overflow-hidden aspect-square">
@@ -516,6 +518,8 @@ export function HomePage() {
                         width={400}
                         height={400}
                         className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 50vw, 400px"
+                        quality={75}
                       />
                     </div>
                   </div>
@@ -527,6 +531,8 @@ export function HomePage() {
                         width={400}
                         height={400}
                         className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 50vw, 400px"
+                        quality={75}
                       />
                     </div>
                     <div className="rounded-2xl overflow-hidden aspect-[3/4]">
@@ -536,6 +542,8 @@ export function HomePage() {
                         width={300}
                         height={400}
                         className="w-full h-full object-cover"
+                        sizes="(max-width: 768px) 50vw, 300px"
+                        quality={75}
                       />
                     </div>
                   </div>
@@ -759,6 +767,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700"
               itemProp="image"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              quality={75}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute top-2 right-2 z-10">
