@@ -39,7 +39,6 @@ type Product = {
   description: string;
   price: number;
   image: string;
-  artisanId: string;
   artisanName: string;
   status: string;
   category?: string;
@@ -58,11 +57,10 @@ export default function ExploreContent() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/db/products');
+        const res = await fetch('/api/db/products?select=id,name,description,price,image,artisanName,status,category,tags');
         if (!res.ok) throw new Error('Failed to load products');
         const json = await res.json();
-        const activeProducts = (json.data || []).filter((p: Product) => p.status === 'Active');
-        setProducts(activeProducts);
+        setProducts(json.data || []);
       } catch (e) {
         console.error('Failed to load products', e);
         setError('Something went wrong loading products. Please try again.');

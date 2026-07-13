@@ -110,6 +110,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
 
   // Products: return all active products for public, all for admin/artisan
   if (collection === 'products') {
+    const url = new URL(req.url);
+    const selectFields = url.searchParams.get('select');
+    const limitParam = parseInt(url.searchParams.get('limit') || '0');
+
     let query: any = {};
     if (!requester || requester.role === 'buyer') {
       query = { status: 'Active' };
@@ -118,7 +122,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     }
     // admin sees all
 
-    const items = await col.find(query).sort({ createdAt: -1 }).toArray();
+    let cursor = col.find(query).sort({ createdAt: -1 });
+    if (limitParam > 0) cursor = cursor.limit(limitParam) as any;
+    if (selectFields) {
+      const projection: Record<string, 1> = {};
+      selectFields.split(',').forEach(f => { projection[f.trim()] = 1; });
+      cursor = cursor.project(projection) as any;
+    }
+    const items = await cursor.toArray();
     const data = items.map((it: any) => ({ id: it._id?.toString?.(), ...it, _id: undefined }));
     return NextResponse.json({ data });
   }

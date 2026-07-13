@@ -29,10 +29,9 @@ export function FeaturedProducts() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch('/api/db/products');
+        const res = await fetch('/api/db/products?select=id,name,price,image,artisanName,status&limit=8');
         const json = await res.json();
-        const active = (json.data || []).filter((p: Product) => p.status === 'Active');
-        setFeaturedProducts(active.slice(0, 8));
+        setFeaturedProducts(json.data || []);
       } catch (e) {
         console.error('Failed to load products', e);
       }
