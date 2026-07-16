@@ -3,11 +3,11 @@ import ContactForm from './ContactForm';
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with कलाConnect. Have questions about Indian art, our artisans, or your orders? We\'re here to help.',
+  description: 'Get in touch with कलाConnect (KalaConnect). Questions about Indian art, our artisans, orders, or joining as a seller? Contact us by email at support@kalaconnect.me or phone at +91 7818093944.',
   alternates: { canonical: 'https://kalaconnect.me/contact' },
   openGraph: {
     title: 'Contact Us | कलाConnect',
-    description: 'Get in touch with कलाConnect. Have questions about Indian art? We\'re here to help.',
+    description: 'Contact KalaConnect — questions about Indian art, orders, artisan partnerships, or platform support.',
     url: 'https://kalaconnect.me/contact',
   },
 };

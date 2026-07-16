@@ -71,7 +71,8 @@ export function FeaturedProducts() {
         ) : (
           <div className="text-center py-16 text-muted-foreground">
             <Palette className="h-16 w-16 mx-auto mb-4 opacity-20" />
-            <p className="text-lg">Our artisans are creating beautiful works. Check back soon!</p>
+            <p className="text-lg mb-2">Artworks Coming Soon</p>
+            <p className="text-sm max-w-md mx-auto">We are inviting traditional Indian artisans to showcase their craft. In the meantime, explore our <Link href="/guide" className="text-primary underline">guide to Indian art</Link> or read our <Link href="/blog" className="text-primary underline">blog</Link> to learn about Madhubani, Warli, Tanjore, and other magnificent art traditions.</p>
           </div>
         )}
 

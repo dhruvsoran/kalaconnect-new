@@ -75,10 +75,16 @@ export function AboutMission() {
               Weaving Tradition with Technology
             </h2>
             <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              KalaConnect bridges the gap between India&apos;s rich artisanal heritage and the global digital marketplace. We provide artisans with cutting-edge AI tools, a supportive community, and a platform to share their stories with the world.
+              KalaConnect bridges the gap between India&apos;s rich artisanal heritage and the global digital marketplace. We provide artisans with cutting-edge AI tools, a supportive community, and a direct platform to share their craft with the world.
+            </p>
+            <p className="text-muted-foreground mb-4 leading-relaxed">
+              India is home to over seven million traditional artisans — painters, weavers, sculptors, and craftspeople whose skills have been refined over centuries. These artists create extraordinary works using techniques passed down through generations, from the Madhubani painters of Bihar who use natural pigments derived from turmeric and indigo, to the master weavers of Varanasi who produce intricate silk brocades on handlooms that have remained unchanged for hundreds of years.
+            </p>
+            <p className="text-muted-foreground mb-4 leading-relaxed">
+              However, many of these talented artisans struggle to reach buyers beyond their local markets. Exploitative middlemen often take the majority of the sale price, leaving artists with a fraction of what their work is worth. Young people in artisan communities are increasingly leaving traditional crafts for more stable employment, putting the very survival of these ancient art forms at risk.
             </p>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Many talented artisans in rural India struggle to reach buyers outside their local markets. Our platform gives them visibility, fair pricing, and the digital tools they need to grow their craft into a sustainable business.
+              KalaConnect was founded to change this. Our platform gives artisans visibility, fair pricing through direct-to-consumer sales, and AI-powered digital tools to help them describe their work, market their products, and grow their craft into sustainable businesses. When you buy through KalaConnect, 80-90% of your payment goes directly to the artist — not to middlemen. Every purchase is an investment in cultural preservation, economic justice, and the future of India&apos;s extraordinary artistic heritage.
             </p>
             <motion.div whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }}>
               <Button size="lg" asChild>

@@ -18,8 +18,11 @@ export function CTASection() {
           <h2 className="text-3xl md:text-5xl font-bold font-headline mb-6">
             Ready to Discover <span className="text-gradient">Timeless Art</span>?
           </h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join our growing community of art lovers and artisans. Your next masterpiece is waiting.
+          <p className="text-lg text-muted-foreground mb-4 max-w-2xl mx-auto">
+            Join our growing community of art lovers and artisans. Whether you are looking for authentic Madhubani paintings, Warli tribal art, Tanjore masterpieces, Pichwai devotional art, Rajasthani miniatures, handwoven textiles from across India, or traditional sculptures — KalaConnect connects you directly with the master craftspeople who create them.
+          </p>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Every purchase supports a traditional artisan family and helps preserve India&apos;s extraordinary cultural heritage. Browse our curated collection of authentic handcrafted Indian art, or if you are an artisan, join our platform to showcase your work to the world and receive fair compensation for your craft.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

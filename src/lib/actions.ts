@@ -1,6 +1,6 @@
-
 "use server";
 
+import { cookies } from 'next/headers';
 import { generateProductDescription, GenerateProductDescriptionInput } from "@/ai/flows/generate-product-descriptions";
 import { createMarketingContent, CreateMarketingContentInput } from "@/ai/flows/create-marketing-content";
 import { getChatbotAssistance, GetChatbotAssistanceInput } from "@/ai/flows/get-chatbot-assistance";
@@ -20,10 +20,29 @@ import {
   getOrderById
 } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { verifyToken } from "@/lib/jwt";
 
-type GenerateProductDescriptionActionInput = Omit<GenerateProductDescriptionInput, "productImageUri"> & {
-    productImageUri: string;
+type GenerateProductDescriptionActionInput = {
+  productImageUri: string;
+  productName: string;
+  artisanCulture: string;
+  craftTechniques: string;
+  productMaterials: string;
+  productDimensions: string;
+  productRegion: string;
 };
+
+async function getCurrentUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+    if (!token) return null;
+    const payload = verifyToken(token);
+    return payload?.sub || null;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateProductDescriptionAction(input: GenerateProductDescriptionActionInput) {
     try {
@@ -44,7 +63,6 @@ export async function createMarketingContentAction(input: CreateMarketingContent
         return { error: "Failed to generate marketing content. Please check the server logs." };
     }
 }
-
 
 export async function getChatbotAssistanceAction(input: GetChatbotAssistanceInput) {
     try {
@@ -71,34 +89,68 @@ export async function saveProductAction(productData: {
     productId?: string;
 }) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
+
         const { isEditing, productId, artisanId, artisanName, ...newProductData } = productData;
-        
-        let savedProduct;
 
         if (isEditing && productId) {
+            const existingProduct = await getProductByIdForAction(productId);
+            if (!existingProduct || existingProduct.artisanId !== userId) {
+                return { error: "You can only edit your own products." };
+            }
             const productToUpdate: Partial<Product> = { ...newProductData };
-            savedProduct = await updateProduct(productId, productToUpdate);
+            const savedProduct = await updateProduct(productId, productToUpdate);
         } else {
+            if (artisanId !== userId) {
+                return { error: "You can only create products for your own account." };
+            }
             const productToAdd: Omit<Product, '_id' | 'createdAt' | 'updatedAt'> = { 
               ...newProductData, 
               artisanId, 
               artisanName 
             };
-            savedProduct = await addProduct(productToAdd);
+            const savedProduct = await addProduct(productToAdd);
         }
         
         revalidatePath('/dashboard/products');
         revalidatePath('/explore');
         revalidatePath('/');
-        return { success: true, product: savedProduct };
+        return { success: true, product: null };
     } catch (error) {
         console.error("Error in saveProductAction:", error);
         return { error: "Failed to save the product." };
     }
 }
 
+async function getProductByIdForAction(id: string) {
+    try {
+        const { getDb } = await import('@/lib/mongodb');
+        const { ObjectId } = await import('mongodb');
+        const db = await getDb();
+        return await db.collection('products').findOne({ _id: new ObjectId(id) });
+    } catch {
+        return null;
+    }
+}
+
 export async function deleteProductAction(productId: string) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
+
+        const product = await getProductByIdForAction(productId);
+        if (!product) {
+            return { error: "Product not found." };
+        }
+        if (product.artisanId !== userId) {
+            return { error: "You can only delete your own products." };
+        }
+
         const result = await deleteProductDb(productId);
         revalidatePath('/dashboard/products');
         revalidatePath('/explore');
@@ -113,6 +165,14 @@ export async function deleteProductAction(productId: string) {
 
 export async function saveUserProfileAction(profileData: Omit<UserProfile, '_id' | 'createdAt' | 'updatedAt'>) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
+        if (profileData.userId !== userId) {
+            return { error: "You can only edit your own profile." };
+        }
+
         const updatedProfile = await createOrUpdateUserProfile(profileData);
         revalidatePath('/dashboard/profile');
         return { success: true, profile: updatedProfile };
@@ -124,6 +184,10 @@ export async function saveUserProfileAction(profileData: Omit<UserProfile, '_id'
 
 export async function getArtisanDashboardStats(artisanId: string) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId || userId !== artisanId) {
+            return { error: "Unauthorized." };
+        }
         const stats = await getArtisanStats(artisanId);
         return { success: true, stats };
     } catch (error) {
@@ -134,6 +198,10 @@ export async function getArtisanDashboardStats(artisanId: string) {
 
 export async function getArtisanOrdersAction(artisanId: string) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId || userId !== artisanId) {
+            return { error: "Unauthorized." };
+        }
         const orders = await getArtisanOrders(artisanId);
         return { success: true, orders };
     } catch (error) {
@@ -144,6 +212,10 @@ export async function getArtisanOrdersAction(artisanId: string) {
 
 export async function getAllOrdersAction() {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
         const orders = await getAllOrders();
         return { success: true, orders };
     } catch (error) {
@@ -160,6 +232,11 @@ export async function updateOrderStatusAction(
   note?: string
 ) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
+
         const order = await updateOrderStatus(orderId, status, updatedBy, updatedByRole, note);
         revalidatePath('/dashboard/orders');
         revalidatePath('/admin');
@@ -173,7 +250,17 @@ export async function updateOrderStatusAction(
 
 export async function getOrderDetailsAction(orderId: string) {
     try {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return { error: "Authentication required." };
+        }
         const order = await getOrderById(orderId);
+        if (!order) {
+            return { error: "Order not found." };
+        }
+        if (order.buyerId !== userId && !order.items?.some((i: any) => i.artisanId === userId)) {
+            return { error: "Unauthorized." };
+        }
         return { success: true, order };
     } catch (error) {
         console.error("Error in getOrderDetailsAction:", error);

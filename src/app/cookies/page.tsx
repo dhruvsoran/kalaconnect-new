@@ -3,10 +3,10 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Cookie Policy',
-  description: 'Learn about how कलाConnect uses cookies for session management, analytics, and personalization. Manage your cookie preferences easily.',
+  description: 'Cookie Policy for कलाConnect (KalaConnect) Indian Art Marketplace. Learn about essential cookies, analytics cookies, and advertising cookies used on our platform and how to manage your preferences.',
   openGraph: {
     title: 'Cookie Policy | कलाConnect',
-    description: 'Cookie Policy for कलाConnect Indian Art Marketplace',
+    description: 'Cookie Policy for KalaConnect Indian Art Marketplace — learn about cookie usage and manage your preferences.',
     url: 'https://kalaconnect.me/cookies',
     type: 'website',
   },

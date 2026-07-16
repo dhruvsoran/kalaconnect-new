@@ -12,6 +12,13 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/verify-email?error=no-token', req.url));
   }
 
+  // Rate limit by IP to prevent brute-force of tokens
+  const clientIp = getClientIp(req);
+  const rateLimitResult = await checkRateLimit(`verify-token:${clientIp}`, 10);
+  if (!rateLimitResult.success) {
+    return NextResponse.redirect(new URL('/verify-email?error=too-many-attempts', req.url));
+  }
+
   const result = await verifyEmailToken(token);
 
   if (result.success) {
@@ -30,7 +37,7 @@ export async function POST(req: Request) {
   }
 
   const clientIp = getClientIp(req);
-  const rateLimitResult = await checkRateLimit(`verify-resend:${clientIp}:${email}`);
+  const rateLimitResult = await checkRateLimit(`verify-resend:${clientIp}`, 3);
   if (!rateLimitResult.success) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
@@ -42,12 +49,17 @@ export async function POST(req: Request) {
   const users = db.collection('users');
   const user = await users.findOne({ email: email.toLowerCase() });
 
+  // Generic response to prevent user enumeration
+  const genericResponse = NextResponse.json({
+    message: 'If this email is registered and not yet verified, a verification link has been sent.',
+  });
+
   if (!user) {
-    return NextResponse.json({ error: 'If this email is registered, a verification link has been sent.' });
+    return genericResponse;
   }
 
   if (user.emailVerified) {
-    return NextResponse.json({ error: 'This email is already verified.' });
+    return genericResponse;
   }
 
   const token = await createVerificationToken(

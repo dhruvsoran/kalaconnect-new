@@ -117,6 +117,14 @@ export function HomePage() {
               A digital bridge connecting India&apos;s finest artisans directly to art lovers worldwide.
               Every purchase preserves centuries of heritage and supports independent craftspeople.
             </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              className="mt-4 max-w-2xl mx-auto text-base text-neutral-300 leading-relaxed"
+            >
+              KalaConnect is an Indian art marketplace featuring authentic Madhubani paintings from Bihar, Warli tribal art from Maharashtra, Tanjore paintings with gold leaf from Tamil Nadu, Pichwai devotional art from Rajasthan, Rajasthani miniature paintings, handwoven textiles including Banarasi silk and Kanchipuram weaves, traditional sculptures, and more — all directly from the artisans who create them.
+            </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

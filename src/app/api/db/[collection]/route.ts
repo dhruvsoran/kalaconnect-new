@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { verifyToken } from '@/lib/jwt';
+import { sanitizeInput } from '@/lib/validation';
 
 async function logToDB(level: string, category: string, message: string, details?: string, extra?: Record<string, any>) {
   try {
@@ -30,6 +31,24 @@ async function getRequester(req: Request) {
   return user || null;
 }
 
+const ALLOWED_PRODUCT_FIELDS = ['name', 'description', 'price', 'stock', 'image', 'images', 'category', 'tags', 'status'];
+const ALLOWED_COMMENT_FIELDS = ['productId', 'text'];
+const ALLOWED_CONTACT_FIELDS = ['name', 'email', 'phone', 'subject', 'message'];
+
+function sanitizeObject(obj: Record<string, any>, allowedFields: string[]): Record<string, any> {
+  const sanitized: Record<string, any> = {};
+  for (const key of allowedFields) {
+    if (obj[key] !== undefined) {
+      if (typeof obj[key] === 'string') {
+        sanitized[key] = sanitizeInput(obj[key]);
+      } else {
+        sanitized[key] = obj[key];
+      }
+    }
+  }
+  return sanitized;
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ collection: string }> }) {
   const { collection } = await params;
   const db = await getDb();
@@ -37,7 +56,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
 
   const requester = await getRequester(req);
 
-  // User collection: sanitize unless admin
   if (collection === 'users') {
     if (!requester || requester.role !== 'admin') {
       return NextResponse.json({ data: [] });
@@ -53,7 +71,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
-  // Orders: buyer sees only their orders; artisan sees orders containing their products; admin sees all
   if (collection === 'orders') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -74,14 +91,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
-  // Carts: only return the requester's cart
   if (collection === 'carts') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const cart = await col.findOne({ userId: requester._id?.toString?.() });
     return NextResponse.json({ data: cart ? { id: cart._id?.toString?.(), ...cart, _id: undefined } : { items: [] } });
   }
 
-  // Contact Messages: only admin can view
   if (collection === 'contactMessages') {
     if (!requester || requester.role !== 'admin') {
       return NextResponse.json({ data: [] });
@@ -91,7 +106,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
-  // System Logs: only admin can view
   if (collection === 'systemLogs') {
     if (!requester || requester.role !== 'admin') {
       return NextResponse.json({ data: [] });
@@ -99,7 +113,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     const url = new URL(req.url);
     const level = url.searchParams.get('level') || undefined;
     const category = url.searchParams.get('category') || undefined;
-    const limit = parseInt(url.searchParams.get('limit') || '100');
+    const limitParam = url.searchParams.get('limit');
+    const limit = Math.min(Math.max(parseInt(limitParam || '100') || 100, 1), 500);
     const query: any = {};
     if (level) query.level = level;
     if (category) query.category = category;
@@ -108,11 +123,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
-  // Products: return all active products for public, all for admin/artisan
   if (collection === 'products') {
     const url = new URL(req.url);
     const selectFields = url.searchParams.get('select');
-    const limitParam = parseInt(url.searchParams.get('limit') || '0');
+    const limitParam = url.searchParams.get('limit');
+    const limit = Math.min(Math.max(parseInt(limitParam || '0') || 0, 0), 200);
 
     let query: any = {};
     if (!requester || requester.role === 'buyer') {
@@ -120,21 +135,22 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     } else if (requester.role === 'artisan') {
       query = { $or: [{ artisanId: requester._id?.toString?.() }, { status: 'Active' }] };
     }
-    // admin sees all
 
     let cursor = col.find(query).sort({ createdAt: -1 });
-    if (limitParam > 0) cursor = cursor.limit(limitParam) as any;
+    if (limit > 0) cursor = cursor.limit(limit) as any;
     if (selectFields) {
-      const projection: Record<string, 1> = {};
-      selectFields.split(',').forEach(f => { projection[f.trim()] = 1; });
-      cursor = cursor.project(projection) as any;
+      const fields = selectFields.split(',').map(f => f.trim()).filter(f => /^[a-zA-Z0-9_]+$/.test(f));
+      if (fields.length > 0) {
+        const projection: Record<string, 1> = {};
+        fields.forEach(f => { projection[f] = 1; });
+        cursor = cursor.project(projection) as any;
+      }
     }
     const items = await cursor.toArray();
     const data = items.map((it: any) => ({ id: it._id?.toString?.(), ...it, _id: undefined }));
     return NextResponse.json({ data });
   }
 
-  // Comments: publicly readable for any product
   if (collection === 'comments') {
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId');
@@ -151,7 +167,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data });
   }
 
-  // Likes: publicly readable counts, and check if current user liked
   if (collection === 'likes') {
     const url = new URL(req.url);
     const productId = url.searchParams.get('productId');
@@ -170,7 +185,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     return NextResponse.json({ data: [] });
   }
 
-  // Default: no access to unknown collections
   return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
 }
 
@@ -182,7 +196,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
 
   const requester = await getRequester(req);
 
-  // Only authenticated users can create orders
+  // Orders
   if (collection === 'orders') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const now = new Date();
@@ -198,7 +212,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
     });
     const orderId = res.insertedId?.toString?.() || null;
 
-    // Log the order
     logToDB('success', 'order', `New order placed: ${body.orderId || orderId}`, 
       `Buyer: ${requester.name || requester.email}, Total: ₹${body.total || 0}`,
       { userId: requester._id?.toString?.(), userEmail: requester.email, userRole: requester.role }
@@ -207,15 +220,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
     return NextResponse.json({ id: orderId });
   }
 
-  // Only artisans or admin can create products
+  // Products
   if (collection === 'products') {
     if (!requester || (requester.role !== 'artisan' && requester.role !== 'admin')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    const res = await col.insertOne({ ...body, artisanId: requester._id?.toString?.(), createdAt: new Date() });
+    const sanitized = sanitizeObject(body, ALLOWED_PRODUCT_FIELDS);
+    const res = await col.insertOne({ ...sanitized, artisanId: requester._id?.toString?.(), status: body.status || 'Draft', createdAt: new Date() });
     const productId = res.insertedId?.toString?.() || null;
 
-    logToDB('success', 'product', `New product created: ${body.name}`,
+    logToDB('success', 'product', `New product created: ${sanitized.name}`,
       `Artisan: ${requester.name || requester.email}, Price: ₹${body.price || 0}`,
       { userId: requester._id?.toString?.(), userEmail: requester.email, userRole: requester.role }
     );
@@ -245,18 +259,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
   // Comments
   if (collection === 'comments') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const sanitized = sanitizeObject(body, ALLOWED_COMMENT_FIELDS);
     const userName = requester.name || 'User';
     const res = await col.insertOne({
-      productId: body.productId,
+      productId: sanitized.productId,
       userId: requester._id?.toString?.(),
       userName,
-      text: body.text || '',
+      text: sanitized.text || '',
       createdAt: new Date()
     });
     return NextResponse.json({ id: res.insertedId?.toString?.() || null });
   }
 
-  // Carts: per-user cart
+  // Carts
   if (collection === 'carts') {
     if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const action = body.action || null;
@@ -271,7 +286,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
     if (action === 'remove' && body.productName) {
       await col.updateOne(
         { userId: requester._id?.toString?.() },
-        { $pull: { items: { name: body.productName } as any } }
+        { $pull: { items: { name: body.productName } } as any }
       );
       return NextResponse.json({ ok: true });
     }
@@ -280,39 +295,49 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
       return NextResponse.json({ ok: true });
     }
     if (Array.isArray(body.items)) {
-      await col.updateOne({ userId: requester._id?.toString?.() }, { $set: { items: body.items } }, { upsert: true });
+      const sanitizedItems = body.items.map((item: any) => ({
+        productId: item.productId,
+        productName: sanitizeInput(item.productName || ''),
+        price: typeof item.price === 'number' ? item.price : 0,
+        quantity: typeof item.quantity === 'number' ? Math.max(1, Math.min(99, item.quantity)) : 1,
+        image: item.image || '',
+      }));
+      await col.updateOne({ userId: requester._id?.toString?.() }, { $set: { items: sanitizedItems } }, { upsert: true });
       return NextResponse.json({ ok: true });
     }
   }
 
-  // Contact Messages: anyone can send, must have name, email, subject, message
+  // Contact Messages
   if (collection === 'contactMessages') {
     if (!body.name || !body.email || !body.subject || !body.message) {
       return NextResponse.json({ error: 'Name, email, subject, and message are required' }, { status: 400 });
     }
+    const sanitized = sanitizeObject(body, ALLOWED_CONTACT_FIELDS);
     const res = await col.insertOne({
-      name: body.name,
-      email: body.email,
-      phone: body.phone || '',
-      subject: body.subject,
-      message: body.message,
+      name: sanitized.name,
+      email: sanitized.email,
+      phone: sanitized.phone || '',
+      subject: sanitized.subject,
+      message: sanitized.message,
       read: false,
       createdAt: new Date(),
     });
     return NextResponse.json({ id: res.insertedId?.toString?.() || null });
   }
 
-  // System Logs: only authenticated users can write (for client logging), admin can manage
+  // System Logs: restrict to admin only for client-originated writes
   if (collection === 'systemLogs') {
-    if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!requester || requester.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const res = await col.insertOne({
       level: body.level || 'info',
       category: body.category || 'system',
-      message: body.message || '',
-      details: body.details || '',
-      userId: body.userId || '',
-      userEmail: body.userEmail || '',
-      userRole: body.userRole || '',
+      message: body.message ? sanitizeInput(body.message) : '',
+      details: body.details ? sanitizeInput(body.details) : '',
+      userId: requester._id?.toString?.() || '',
+      userEmail: requester.email || '',
+      userRole: requester.role || '',
       ip: body.ip || '',
       path: body.path || '',
       method: body.method || '',
@@ -323,6 +348,5 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
     return NextResponse.json({ id: res.insertedId?.toString?.() || null });
   }
 
-  // Default: no writes to unknown collections
   return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
 }

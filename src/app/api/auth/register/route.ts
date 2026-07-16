@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { hashPassword } from '@/lib/password';
@@ -51,12 +50,18 @@ export async function POST(req: Request) {
   const db = await getDb();
   const users = db.collection('users');
   const existing = await users.findOne({ email: sanitizedEmail });
+  
+  // Generic response to prevent user enumeration
+  const genericResponse = NextResponse.json({
+    message: 'If the email is available, a verification link has been sent to your inbox.',
+    needsVerification: true,
+  });
+
   if (existing) {
     logAuth('warn', 'Registration attempt with existing email', `Email: ${sanitizedEmail}`);
-    return NextResponse.json({ error: 'User exists' }, { status: 409 });
+    return genericResponse;
   }
 
-  // Only allow buyer/artisan roles via public registration
   const allowedRoles = ['buyer', 'artisan'];
   const userRole = allowedRoles.includes(role) ? role : 'buyer';
 
@@ -72,7 +77,6 @@ export async function POST(req: Request) {
 
   const userId = res.insertedId?.toString?.() || '';
 
-  // Send verification email
   if (userId) {
     try {
       const token = await createVerificationToken(userId, sanitizedEmail);

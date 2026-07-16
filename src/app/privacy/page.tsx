@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Learn how कलाConnect collects, uses, and protects your personal data. We are committed to transparency about our data practices.',
+  description: 'Privacy Policy for कलाConnect (KalaConnect) Indian Art Marketplace. Learn how we collect, use, and protect your personal data when you browse, buy, or sell on our platform.',
   openGraph: {
     title: 'Privacy Policy | कलाConnect',
     description: 'Privacy Policy for कलाConnect Indian Art Marketplace',
