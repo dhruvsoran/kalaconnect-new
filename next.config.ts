@@ -22,8 +22,8 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/:path*',
-        has: [{ type: 'host', value: 'www.kalaconnect.me' }],
-        destination: 'https://kalaconnect.me/:path*',
+        has: [{ type: 'host', value: 'kalaconnect.me' }],
+        destination: 'https://www.kalaconnect.me/:path*',
         permanent: true,
       },
     ];

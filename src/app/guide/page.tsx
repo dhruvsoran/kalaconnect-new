@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'The Complete Guide to Indian Art | कलाConnect',
     description: 'A comprehensive guide to Indian art traditions — history, styles, techniques, and how to start collecting authentic handcrafted pieces directly from artisans.',
-    url: 'https://kalaconnect.me/guide',
+    url: 'https://www.kalaconnect.me/guide',
     type: 'article',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/guide',
+    canonical: 'https://www.kalaconnect.me/guide',
   },
 };
 

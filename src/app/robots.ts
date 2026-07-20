@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/dashboard', '/admin', '/cart', '/checkout', '/api/'],
       },
     ],
-    sitemap: 'https://kalaconnect.me/sitemap.xml',
+    sitemap: 'https://www.kalaconnect.me/sitemap.xml',
   };
 }

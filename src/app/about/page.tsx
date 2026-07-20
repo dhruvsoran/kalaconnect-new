@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About कलाConnect | Indian Art Marketplace',
     description: 'KalaConnect bridges the gap between India\'s talented artisans and art lovers worldwide. Fair prices, authentic handcrafted art, cultural preservation.',
-    url: 'https://kalaconnect.me/about',
+    url: 'https://www.kalaconnect.me/about',
     type: 'website',
   },
-  alternates: { canonical: 'https://kalaconnect.me/about' },
+  alternates: { canonical: 'https://www.kalaconnect.me/about' },
 };
 
 export default async function AboutPage() {

@@ -13,7 +13,7 @@ interface BlogPostingSchemaProps {
 export function BlogPostingSchema({
   title,
   description,
-  image = 'https://kalaconnect.me/og-image.svg',
+  image = 'https://www.kalaconnect.me/og-image.svg',
   datePublished,
   dateModified,
   author = 'KalaConnect',
@@ -30,14 +30,14 @@ export function BlogPostingSchema({
     author: {
       '@type': 'Organization',
       name: author,
-      url: 'https://kalaconnect.me',
+      url: 'https://www.kalaconnect.me',
     },
     publisher: {
       '@type': 'Organization',
       name: 'कलाConnect',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://kalaconnect.me/logo.png',
+        url: 'https://www.kalaconnect.me/logo.png',
       },
     },
     mainEntityOfPage: {

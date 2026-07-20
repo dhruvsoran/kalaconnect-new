@@ -6,11 +6,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Login | कलाConnect',
     description: 'Sign in to your कलाConnect account.',
-    url: 'https://kalaconnect.me/login',
+    url: 'https://www.kalaconnect.me/login',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/login',
+    canonical: 'https://www.kalaconnect.me/login',
   },
   robots: {
     index: false,

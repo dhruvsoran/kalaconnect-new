@@ -7,9 +7,9 @@ export function LocalBusinessSchema() {
     name: 'कलाConnect',
     alternateName: 'KalaConnect',
     description: 'AI-powered digital marketplace connecting Indian artisans directly with art lovers worldwide. Discover authentic handcrafted paintings, sculptures, and traditional crafts.',
-    url: 'https://kalaconnect.me',
-    logo: 'https://kalaconnect.me/logo.png',
-    image: 'https://kalaconnect.me/og-image.svg',
+    url: 'https://www.kalaconnect.me',
+    logo: 'https://www.kalaconnect.me/logo.png',
+    image: 'https://www.kalaconnect.me/og-image.svg',
     email: 'support@kalaconnect.me',
     telephone: '+91-7818093944',
     address: {

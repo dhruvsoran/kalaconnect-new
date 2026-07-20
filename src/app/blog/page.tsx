@@ -9,11 +9,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Art & Culture Blog | कलाConnect',
     description: 'In-depth guides on Indian art traditions — Madhubani, Warli, Tanjore, Pichwai, miniature painting, sculpture, textiles, and collecting.',
-    url: 'https://kalaconnect.me/blog',
+    url: 'https://www.kalaconnect.me/blog',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/blog',
+    canonical: 'https://www.kalaconnect.me/blog',
   },
 };
 

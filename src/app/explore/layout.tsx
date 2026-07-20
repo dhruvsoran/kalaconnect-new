@@ -7,10 +7,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Explore Indian Art — कलाConnect',
     description: 'Browse authentic handcrafted Indian art from verified artisans.',
-    url: 'https://kalaconnect.me/explore',
+    url: 'https://www.kalaconnect.me/explore',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/explore',
+    canonical: 'https://www.kalaconnect.me/explore',
   },
 };
 
@@ -19,8 +19,8 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
     <>
       <BreadcrumbSchema
         items={[
-          { name: 'Home', url: 'https://kalaconnect.me' },
-          { name: 'Explore Art', url: 'https://kalaconnect.me/explore' },
+          { name: 'Home', url: 'https://www.kalaconnect.me' },
+          { name: 'Explore Art', url: 'https://www.kalaconnect.me/explore' },
         ]}
       />
       {children}

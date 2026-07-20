@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getDb } from '@/lib/mongodb';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://kalaconnect.me';
+  const baseUrl = 'https://www.kalaconnect.me';
 
   const staticPages: MetadataRoute.Sitemap = [
     {

@@ -6,13 +6,13 @@ export function WebSiteSchema() {
     '@type': 'WebSite',
     name: 'कलाConnect',
     alternateName: 'KalaConnect',
-    url: 'https://kalaconnect.me',
+    url: 'https://www.kalaconnect.me',
     description: 'AI-powered digital marketplace connecting Indian artisans directly with art lovers worldwide.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://kalaconnect.me/explore?q={search_term_string}',
+        urlTemplate: 'https://www.kalaconnect.me/explore?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

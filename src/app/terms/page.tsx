@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'Terms of Service for कलाConnect (KalaConnect) Indian Art Marketplace. Read our terms and conditions for buyers, artisans, platform usage, orders, payments, and intellectual property.',
-  alternates: { canonical: 'https://kalaconnect.me/terms' },
+  alternates: { canonical: 'https://www.kalaconnect.me/terms' },
 };
 
 export default function TermsPage() {

@@ -37,7 +37,7 @@ export function ProductSchema({
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     offers: {
       '@type': 'Offer',
-      url: url || 'https://kalaconnect.me/explore',
+      url: url || 'https://www.kalaconnect.me/explore',
       priceCurrency: currency,
       price,
       availability,

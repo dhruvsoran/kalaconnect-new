@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Privacy Policy | कलाConnect',
     description: 'Privacy Policy for कलाConnect Indian Art Marketplace',
-    url: 'https://kalaconnect.me/privacy',
+    url: 'https://www.kalaconnect.me/privacy',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/privacy',
+    canonical: 'https://www.kalaconnect.me/privacy',
   },
 };
 

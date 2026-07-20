@@ -229,11 +229,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: article.title,
       description: article.content[0].substring(0, 158) + '...',
-      url: `https://kalaconnect.me/blog/${slug}`,
+      url: `https://www.kalaconnect.me/blog/${slug}`,
       type: 'article',
     },
     alternates: {
-      canonical: `https://kalaconnect.me/blog/${slug}`,
+      canonical: `https://www.kalaconnect.me/blog/${slug}`,
     },
   };
 }
@@ -269,7 +269,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         title={article.title}
         description={article.content[0].substring(0, 158)}
         datePublished="2025-06-01"
-        url={`https://kalaconnect.me/blog/${slug}`}
+        url={`https://www.kalaconnect.me/blog/${slug}`}
         author={article.author}
       />
 

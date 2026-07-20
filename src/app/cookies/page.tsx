@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Cookie Policy | कलाConnect',
     description: 'Cookie Policy for KalaConnect Indian Art Marketplace — learn about cookie usage and manage your preferences.',
-    url: 'https://kalaconnect.me/cookies',
+    url: 'https://www.kalaconnect.me/cookies',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/cookies',
+    canonical: 'https://www.kalaconnect.me/cookies',
   },
 };
 

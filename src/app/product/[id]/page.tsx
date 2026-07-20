@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       images: [{ url: product.image, width: 800, height: 800 }],
     },
     alternates: {
-      canonical: `https://kalaconnect.me/product/${id}`,
+      canonical: `https://www.kalaconnect.me/product/${id}`,
     },
   };
 }

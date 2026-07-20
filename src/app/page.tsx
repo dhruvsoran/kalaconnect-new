@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://kalaconnect.me',
+    url: 'https://www.kalaconnect.me',
     siteName: 'कलाConnect',
     title: 'कलाConnect — Indian Art Marketplace',
     description: 'Discover and shop authentic handcrafted Indian art. Support local artisans selling paintings, sculptures, sarees, and traditional crafts.',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     description: 'Discover and shop authentic handcrafted Indian art. Support local artisans.',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me',
+    canonical: 'https://www.kalaconnect.me',
   },
 };
 

@@ -6,11 +6,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Join कलाConnect — Register',
     description: 'Create your free account to buy or sell authentic Indian art.',
-    url: 'https://kalaconnect.me/register',
+    url: 'https://www.kalaconnect.me/register',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://kalaconnect.me/register',
+    canonical: 'https://www.kalaconnect.me/register',
   },
   robots: {
     index: true,
