@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  trailingSlash: false,
+
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',
@@ -14,6 +16,17 @@ const nextConfig: NextConfig = {
         '*.vercel.app',
       ],
     },
+  },
+
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.kalaconnect.me' }],
+        destination: 'https://kalaconnect.me/:path*',
+        permanent: true,
+      },
+    ];
   },
 
   webpack: (config) => {
