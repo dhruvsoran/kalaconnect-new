@@ -11,7 +11,7 @@ import { Button } from "./ui/button";
 import { Menu, Palette, HelpCircle, Store, LayoutDashboard, LogOut, BookOpen } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { ThemeToggle } from "./theme-toggle";
-import { useUser } from "@/firebase";
+import { useUser } from "@/auth";
 
 export function SiteHeader() {
     const [isScrolled, setIsScrolled] = useState(false);

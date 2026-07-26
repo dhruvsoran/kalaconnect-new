@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Package, ShoppingCart, CreditCard, BarChart3, MessageSquare, Megaphone, Settings, Menu, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useUser } from '@/firebase';
+import { useUser } from '@/auth';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

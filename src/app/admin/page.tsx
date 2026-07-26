@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useUser, useFirebase } from '@/firebase';
+import { useUser } from '@/auth';
 import { useRouter } from 'next/navigation';
 import {
   Users,
@@ -124,7 +124,6 @@ type SystemLogEntry = {
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useUser();
-  const {} = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');

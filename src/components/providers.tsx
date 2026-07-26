@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
-import { FirebaseClientProvider } from '@/firebase';
+import { AuthClientProvider } from '@/auth';
 import { Toaster } from '@/components/ui/toaster';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
@@ -14,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const isDashboardPage = pathname.startsWith('/dashboard');
 
   return (
-    <FirebaseClientProvider>
+    <AuthClientProvider>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -35,6 +35,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </div>
         <Toaster />
       </ThemeProvider>
-    </FirebaseClientProvider>
+    </AuthClientProvider>
   );
 }

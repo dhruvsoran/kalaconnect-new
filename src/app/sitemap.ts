@@ -1,8 +1,16 @@
 import { MetadataRoute } from 'next';
 import { getDb } from '@/lib/mongodb';
+import { artForms } from '@/lib/art-forms-data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.kalaconnect.me';
+
+  const artFormPages: MetadataRoute.Sitemap = artForms.map((art) => ({
+    url: `${baseUrl}/art-forms/${art.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }));
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -96,6 +104,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/art-forms`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/blog/buying-indian-art-online-guide`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -142,5 +156,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If DB is unavailable, skip product pages
   }
 
-  return [...staticPages, ...productPages];
+  return [...staticPages, ...artFormPages, ...productPages];
 }

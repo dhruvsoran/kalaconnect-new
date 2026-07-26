@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUser, useFirebase } from '@/firebase';
+import { useUser } from '@/auth';
 import { updateOrderStatusAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import ImageNext from 'next/image';
@@ -790,7 +790,6 @@ function DashboardSkeleton() {
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useUser();
-  const {} = useFirebase();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);

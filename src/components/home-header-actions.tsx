@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useUser } from '@/firebase';
+import { useUser } from '@/auth';
 
 export function HomeHeaderActions() {
     const { user, loading } = useUser();

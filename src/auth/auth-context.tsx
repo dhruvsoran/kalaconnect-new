@@ -2,23 +2,17 @@
 
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 
-type FirebaseContextType = {
-  firebaseApp: null;
-  firestore: null;
-  auth: null;
+type AuthContextType = {
   currentUser: { id: string; email: string; name?: string; role?: string; emailVerified?: boolean } | null;
   loading: boolean;
 };
 
-const FirebaseContext = createContext<FirebaseContextType>({
-  firebaseApp: null,
-  firestore: null,
-  auth: null,
+const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   loading: true,
 });
 
-export const FirebaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<null | { id: string; email: string; name?: string; role?: string; emailVerified?: boolean }>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +25,7 @@ export const FirebaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       });
       const json = await res.json();
       setCurrentUser(json.user || null);
-    } catch (e) {
+    } catch {
       setCurrentUser(null);
     } finally {
       setLoading(false);
@@ -50,14 +44,10 @@ export const FirebaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, []);
 
   return (
-    <FirebaseContext.Provider value={{ firebaseApp: null, firestore: null, auth: null, currentUser, loading }}>
+    <AuthContext.Provider value={{ currentUser, loading }}>
       {children}
-    </FirebaseContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export const useFirebase = () => useContext(FirebaseContext);
-export const useFirebaseApp = () => null;
-export const useFirestore = () => null;
-export const useAuth = () => null;
-
+export const useAuthContext = () => useContext(AuthContext);

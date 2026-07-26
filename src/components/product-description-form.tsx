@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generateProductDescriptionAction, saveProductAction } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useUser } from "@/firebase";
+import { useUser } from "@/auth";
 
 const formSchema = z.object({
   productName: z.string().min(3, "Product name must be at least 3 characters."),

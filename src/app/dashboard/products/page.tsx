@@ -43,7 +43,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirebase } from '@/firebase';
+import { useUser } from '@/auth';
 import { useRouter } from 'next/navigation';
 
 type Product = {

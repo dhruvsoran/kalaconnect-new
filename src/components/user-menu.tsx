@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useUser } from '@/firebase';
+import { useUser } from '@/auth';
 import { Skeleton } from './ui/skeleton';
 
 export function UserMenu() {

@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { createMarketingContentAction } from "@/lib/actions";
 import { cn } from "@/lib/utils";
-import { useUser, useFirebase } from "@/firebase";
+import { useUser } from "@/auth";
 import { TTSButton } from "@/components/ui/tts-button";
 
 const formSchema = z.object({
@@ -53,7 +53,6 @@ export function MarketingContentForm() {
     const [emailCampaign, setEmailCampaign] = useState("");
     const { toast } = useToast();
     const { user } = useUser();
-    const {} = useFirebase();
 
     const [products, setProducts] = useState<Product[]>([]);
     const [productsLoading, setProductsLoading] = useState(true);

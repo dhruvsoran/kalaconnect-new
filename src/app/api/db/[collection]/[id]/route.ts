@@ -24,6 +24,8 @@ async function getRequester(req: Request) {
   return user || null;
 }
 
+const ALLOWED_COLLECTIONS = ['users', 'orders', 'products', 'carts', 'likes', 'comments', 'contactMessages', 'systemLogs'];
+
 const ALLOWED_PRODUCT_FIELDS = ['name', 'description', 'price', 'stock', 'image', 'images', 'category', 'tags', 'status'];
 const ALLOWED_ORDER_STATUS_FIELDS = ['status'];
 
@@ -43,6 +45,9 @@ function sanitizeObject(obj: Record<string, any>, allowedFields: string[]): Reco
 
 export async function GET(req: Request, { params }: { params: Promise<{ collection: string; id: string }> }) {
   const { collection, id } = await params;
+  if (!ALLOWED_COLLECTIONS.includes(collection)) {
+    return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
+  }
   const db = await getDb();
   const col = db.collection(collection);
   const oid = toObjectId(id);
@@ -88,6 +93,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
 
 export async function PUT(req: Request, { params }: { params: Promise<{ collection: string; id: string }> }) {
   const { collection, id } = await params;
+  if (!ALLOWED_COLLECTIONS.includes(collection)) {
+    return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
+  }
   const body = await req.json();
   const db = await getDb();
   const col = db.collection(collection);
@@ -129,6 +137,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ collection: string; id: string }> }) {
   const { collection, id } = await params;
+  if (!ALLOWED_COLLECTIONS.includes(collection)) {
+    return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
+  }
   const body = await req.json();
   const db = await getDb();
   const col = db.collection(collection);
@@ -196,6 +207,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ collec
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ collection: string; id: string }> }) {
   const { collection, id } = await params;
+  if (!ALLOWED_COLLECTIONS.includes(collection)) {
+    return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
+  }
   const db = await getDb();
   const col = db.collection(collection);
   const oid = toObjectId(id);

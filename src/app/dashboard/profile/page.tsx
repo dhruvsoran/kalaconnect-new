@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Form, FormField, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Upload, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useUser } from "@/firebase";
+import { useUser } from "@/auth";
 import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({

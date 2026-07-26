@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo, memo } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useUser } from '@/firebase';
+import { useUser } from '@/auth';
 import { useRouter } from 'next/navigation';
 import {
   Heart,
@@ -71,7 +71,7 @@ export default function ExploreContent() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = useMemo(() => products.filter((product) => {
     const matchesSearch = searchQuery === '' ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,7 +82,7 @@ export default function ExploreContent() {
       (product.category && product.category.toLowerCase() === selectedCategory.toLowerCase());
     
     return matchesSearch && matchesCategory;
-  });
+  }), [products, searchQuery, selectedCategory]);
 
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -148,36 +148,98 @@ export default function ExploreContent() {
             </Button>
           </CardContent>
         </Card>
-      ) : (
+      ) : searchQuery || selectedCategory !== 'All' ? (
         <Card className="m-4">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">
-              {searchQuery || selectedCategory !== 'All' ? 'No Results Found' : 'Marketplace Coming Soon'}
-            </CardTitle>
+            <CardTitle className="font-headline text-2xl">No Results Found</CardTitle>
             <CardDescription>
-              {searchQuery || selectedCategory !== 'All'
-                ? 'Try adjusting your search or filters to find what you are looking for.'
-                : 'Our artisans are busy creating! Check back soon to see their beautiful products.'}
+              Try adjusting your search or filters to find what you are looking for.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {(searchQuery || selectedCategory !== 'All') ? (
-              <Button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }} className="mt-4">
-                Clear Filters
-              </Button>
-            ) : (
-              <Button asChild className="mt-4">
-                <Link href="/">Back to Home</Link>
-              </Button>
-            )}
+            <Button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }} className="mt-4">
+              Clear Filters
+            </Button>
           </CardContent>
         </Card>
+      ) : (
+        <div className="space-y-12">
+          <section className="text-center max-w-2xl mx-auto space-y-4">
+            <h2 className="text-2xl font-bold font-headline">Explore Indian Art & Craft</h2>
+            <p className="text-muted-foreground">
+              Our marketplace is growing. While artisans are listing their creations, discover India's incredible artistic traditions through our guides and resources.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-bold font-headline mb-6">Traditional Art Forms</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {[
+                { name: 'Madhubani', href: '/art-forms/madhubani', desc: 'Ancient Mithila paintings from Bihar with intricate geometric patterns and natural pigments.' },
+                { name: 'Warli', href: '/art-forms/warli', desc: 'Tribal art from Maharashtra using simple geometric shapes to tell stories of village life.' },
+                { name: 'Tanjore', href: '/art-forms/tanjore', desc: 'Gold-leaf embellished devotional paintings from Tamil Nadu.' },
+                { name: 'Pichwai', href: '/art-forms/pichwai', desc: 'Intricate cloth paintings from Rajasthan depicting Lord Krishna.' },
+                { name: 'Kalamkari', href: '/art-forms/kalamkari', desc: 'Hand-drawn textile art from Andhra Pradesh using natural vegetable dyes.' },
+                { name: 'Rajasthani Miniatures', href: '/art-forms/rajasthani-miniatures', desc: 'Detailed court paintings from the royal ateliers of Rajasthan.' },
+              ].map((item) => (
+                <Link key={item.name} href={item.href} className="group">
+                  <Card className="h-full transition-all duration-300 group-hover:shadow-md group-hover:border-primary/30">
+                    <CardContent className="p-5">
+                      <h4 className="font-bold font-headline group-hover:text-primary transition-colors">{item.name}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-bold font-headline mb-6">From Our Blog</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {[
+                { title: 'How to Start Your Indian Art Collection', slug: 'how-to-start-art-collection', excerpt: 'Essential tips for beginning collectors — authentication, budgeting, and building relationships with artisans.' },
+                { title: 'Buying Indian Art Online Guide', slug: 'buying-indian-art-online-guide', excerpt: 'Everything you need to know about purchasing authentic Indian art online, from verification to shipping.' },
+                { title: 'Supporting Indian Artisans', slug: 'supporting-indian-artisans', excerpt: 'Learn how your purchases help preserve ancient craft traditions and support artisan communities across India.' },
+              ].map((article) => (
+                <Link key={article.slug} href={`/blog/${article.slug}`} className="group">
+                  <Card className="h-full transition-all duration-300 group-hover:shadow-md group-hover:border-primary/30">
+                    <CardContent className="p-5">
+                      <h4 className="font-bold font-headline group-hover:text-primary transition-colors line-clamp-2">{article.title}</h4>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{article.excerpt}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-6">
+              <Button asChild variant="outline">
+                <Link href="/blog">Read All Articles &rarr;</Link>
+              </Button>
+            </div>
+          </section>
+
+          <section className="bg-muted/50 rounded-xl p-8 text-center space-y-4">
+            <h3 className="text-2xl font-bold font-headline">Are You an Artisan?</h3>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Join KalaConnect and showcase your work to art lovers across India. Get AI-powered tools to create product descriptions and market your creations.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button asChild>
+                <Link href="/register">Register as Artisan</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/guide">Learn More</Link>
+              </Button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+const ProductCard = memo(function ProductCard({ product }: { product: Product }) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useUser();
@@ -191,7 +253,7 @@ function ProductCard({ product }: { product: Product }) {
     async function loadInteractions() {
       try {
         const token = localStorage.getItem('token');
-        const resLikes = await fetch(`/api/db/likes?productId=${encodeURIComponent(product.name)}`, {
+        const resLikes = await fetch(`/api/db/likes?productId=${encodeURIComponent(product.id)}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         const likesJson = await resLikes.json();
@@ -199,7 +261,7 @@ function ProductCard({ product }: { product: Product }) {
         setLikes(likesJson.data?.count || 0);
         setIsLiked(likesJson.data?.isLiked || false);
 
-        const resComments = await fetch(`/api/db/comments?productId=${encodeURIComponent(product.name)}`);
+        const resComments = await fetch(`/api/db/comments?productId=${encodeURIComponent(product.id)}`);
         const commentsJson = await resComments.json();
         if (cancelled) return;
         setComments((commentsJson.data || []).reverse());
@@ -246,7 +308,7 @@ function ProductCard({ product }: { product: Product }) {
         const res = await fetch('/api/db/likes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ productId: product.name, action: 'add' }),
+          body: JSON.stringify({ productId: product.id, action: 'add' }),
         });
         const json = await res.json();
         if (!json.error) {
@@ -257,7 +319,7 @@ function ProductCard({ product }: { product: Product }) {
         const res = await fetch('/api/db/likes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ productId: product.name, action: 'remove' }),
+          body: JSON.stringify({ productId: product.id, action: 'remove' }),
         });
         const json = await res.json();
         if (!json.error) {
@@ -298,7 +360,7 @@ function ProductCard({ product }: { product: Product }) {
       const res = await fetch('/api/db/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ productId: product.name, text: commentText }),
+        body: JSON.stringify({ productId: product.id, text: commentText }),
       });
       const json = await res.json();
       if (!json.error) {
@@ -411,4 +473,4 @@ function ProductCard({ product }: { product: Product }) {
     </motion.div>
     </div>
   );
-}
+});
