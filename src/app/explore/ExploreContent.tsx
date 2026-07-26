@@ -271,7 +271,7 @@ const ProductCard = memo(function ProductCard({ product }: { product: Product })
     }
     loadInteractions();
     return () => { cancelled = true; };
-  }, [product.name]);
+  }, [product.id]);
 
   const handleAuthAction = (callback: () => void) => {
     if (!user) {
