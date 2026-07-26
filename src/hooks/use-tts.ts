@@ -94,13 +94,3 @@ export function useTTS() {
   };
 }
 
-export function useProductTTS() {
-  const { speak, stop, isSpeaking, ...rest } = useTTS();
-
-  const speakProduct = useCallback((product: { name: string; description: string; artisanName: string }) => {
-    const text = `${product.name}. Created by ${product.artisanName}. ${product.description}`;
-    speak(text);
-  }, [speak]);
-
-  return { speakProduct, speak, stop, isSpeaking, ...rest };
-}

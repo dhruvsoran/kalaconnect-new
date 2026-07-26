@@ -163,67 +163,6 @@ export async function deleteProductAction(productId: string) {
     }
 }
 
-export async function saveUserProfileAction(profileData: Omit<UserProfile, '_id' | 'createdAt' | 'updatedAt'>) {
-    try {
-        const userId = await getCurrentUserId();
-        if (!userId) {
-            return { error: "Authentication required." };
-        }
-        if (profileData.userId !== userId) {
-            return { error: "You can only edit your own profile." };
-        }
-
-        const updatedProfile = await createOrUpdateUserProfile(profileData);
-        revalidatePath('/dashboard/profile');
-        return { success: true, profile: updatedProfile };
-    } catch (error) {
-        console.error("Error in saveUserProfileAction:", error);
-        return { error: "Failed to save profile." };
-    }
-}
-
-export async function getArtisanDashboardStats(artisanId: string) {
-    try {
-        const userId = await getCurrentUserId();
-        if (!userId || userId !== artisanId) {
-            return { error: "Unauthorized." };
-        }
-        const stats = await getArtisanStats(artisanId);
-        return { success: true, stats };
-    } catch (error) {
-        console.error("Error in getArtisanDashboardStats:", error);
-        return { error: "Failed to fetch artisan stats." };
-    }
-}
-
-export async function getArtisanOrdersAction(artisanId: string) {
-    try {
-        const userId = await getCurrentUserId();
-        if (!userId || userId !== artisanId) {
-            return { error: "Unauthorized." };
-        }
-        const orders = await getArtisanOrders(artisanId);
-        return { success: true, orders };
-    } catch (error) {
-        console.error("Error in getArtisanOrdersAction:", error);
-        return { error: "Failed to fetch artisan orders." };
-    }
-}
-
-export async function getAllOrdersAction() {
-    try {
-        const userId = await getCurrentUserId();
-        if (!userId) {
-            return { error: "Authentication required." };
-        }
-        const orders = await getAllOrders();
-        return { success: true, orders };
-    } catch (error) {
-        console.error("Error in getAllOrdersAction:", error);
-        return { error: "Failed to fetch all orders." };
-    }
-}
-
 export async function updateOrderStatusAction(
   orderId: string,
   status: 'Processing' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled',
@@ -248,32 +187,4 @@ export async function updateOrderStatusAction(
     }
 }
 
-export async function getOrderDetailsAction(orderId: string) {
-    try {
-        const userId = await getCurrentUserId();
-        if (!userId) {
-            return { error: "Authentication required." };
-        }
-        const order = await getOrderById(orderId);
-        if (!order) {
-            return { error: "Order not found." };
-        }
-        if (order.buyerId !== userId && !order.items?.some((i: any) => i.artisanId === userId)) {
-            return { error: "Unauthorized." };
-        }
-        return { success: true, order };
-    } catch (error) {
-        console.error("Error in getOrderDetailsAction:", error);
-        return { error: "Failed to fetch order details." };
-    }
-}
 
-export async function getProductsForExplore() {
-    try {
-        const products = await getProducts({ status: 'Active' });
-        return { success: true, products };
-    } catch (error) {
-        console.error("Error in getProductsForExplore:", error);
-        return { error: "Failed to fetch products." };
-    }
-}
