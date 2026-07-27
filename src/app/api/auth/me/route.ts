@@ -5,7 +5,18 @@ import { getDb } from '@/lib/mongodb';
 export async function GET(req: Request) {
   const auth = req.headers.get('authorization') || '';
   const token = auth?.replace('Bearer ', '') || null;
-  if (!token) return NextResponse.json({ user: null });
+  if (!token) {
+    const cookieToken = req.headers.get('cookie')
+      ?.split(';')
+      .find(c => c.trim().startsWith('auth_token='))
+      ?.split('=')[1];
+    if (!cookieToken) return NextResponse.json({ user: null });
+    return handleToken(req, cookieToken);
+  }
+  return handleToken(req, token);
+}
+
+async function handleToken(req: Request, token: string) {
 
   const payload = verifyToken(token);
   if (!payload || !payload.email) return NextResponse.json({ user: null });

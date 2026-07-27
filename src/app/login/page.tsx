@@ -121,6 +121,7 @@ function LoginForm() {
       if (json.error) throw new Error(json.error);
 
       if (typeof window !== 'undefined' && json.token) {
+        localStorage.setItem('token', json.token);
         localStorage.setItem('isLoggedIn', 'true');
         if (json.user?.role) localStorage.setItem('userRole', json.user.role);
         if (json.user?.id) localStorage.setItem('userId', json.user.id);
