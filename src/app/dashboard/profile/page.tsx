@@ -40,6 +40,7 @@ type UserProfile = {
   avatar?: string;
   phone?: string;
   address?: string;
+  hasPassword?: boolean;
 };
 
 export default function ProfilePage() {
@@ -49,6 +50,10 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileValues>({
@@ -145,6 +150,33 @@ export default function ProfilePage() {
     }
   };
 
+  const handlePasswordUpdate = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({ variant: 'destructive', title: 'Passwords do not match' });
+      return;
+    }
+    setIsSavingPassword(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/auth/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      toast({ title: 'Password updated', description: 'You can now log in with your new password.' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setProfile(prev => prev ? { ...prev, hasPassword: true } : null);
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Failed', description: error.message });
+    } finally {
+      setIsSavingPassword(false);
+    }
+  };
+
   if (authLoading || loading) {
     return <ProfileSkeleton />;
   }
@@ -224,6 +256,38 @@ export default function ProfilePage() {
                   )} />
                 </>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg border-none">
+            <CardHeader>
+              <CardTitle>{profile.hasPassword ? 'Change Password' : 'Set Password'}</CardTitle>
+              <CardDescription>
+                {profile.hasPassword
+                  ? 'Update your account password.'
+                  : 'You signed in with Google. Set a password to also log in with email and password.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {profile.hasPassword && (
+                <div className="grid gap-2">
+                  <FormLabel>Current Password</FormLabel>
+                  <Input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Enter current password" />
+                </div>
+              )}
+              <div className="grid gap-2">
+                <FormLabel>New Password</FormLabel>
+                <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password" minLength={8} />
+              </div>
+              <div className="grid gap-2">
+                <FormLabel>Confirm New Password</FormLabel>
+                <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
+              </div>
+              <div className="flex justify-end">
+                <Button type="button" onClick={handlePasswordUpdate} disabled={isSavingPassword || !newPassword || newPassword !== confirmPassword} className="min-w-[120px]">
+                  {isSavingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : profile.hasPassword ? 'Update Password' : 'Set Password'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

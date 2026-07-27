@@ -39,6 +39,7 @@ async function handleToken(req: Request, token: string) {
       heritage: user.heritage || null,
       phone: user.phone || null,
       address: user.address || null,
+      hasPassword: !!(user.password && user.password !== ''),
     },
   });
 }
