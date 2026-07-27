@@ -175,7 +175,11 @@ export default function AdminDashboard() {
       router.push('/login');
       return;
     }
-    fetchData();
+    if (!authLoading && user && user.role !== 'admin') {
+      router.push('/dashboard');
+      return;
+    }
+    if (user?.role === 'admin') fetchData();
   }, [user, authLoading, router, fetchData]);
 
   const handleDeleteProduct = async (productId: string, productName: string) => {

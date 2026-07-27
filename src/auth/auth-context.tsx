@@ -24,8 +24,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       const json = await res.json();
+      if (!json.user && token) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userId');
+      }
       setCurrentUser(json.user || null);
     } catch {
+      localStorage.removeItem('token');
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userId');
       setCurrentUser(null);
     } finally {
       setLoading(false);

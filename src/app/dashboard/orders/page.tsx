@@ -63,6 +63,13 @@ export default function OrdersPage() {
       const res = await fetch('/api/db/orders', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('isLoggedIn');
+        window.dispatchEvent(new Event('auth-change'));
+        router.push('/login');
+        return;
+      }
       const json = await res.json();
       setOrders(json.data || []);
     } catch (e) {

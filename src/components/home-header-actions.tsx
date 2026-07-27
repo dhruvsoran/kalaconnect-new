@@ -50,10 +50,14 @@ export function HomeHeaderActions() {
     }, []);
 
     const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch { /* ignore */ }
         if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('userRole');
+            localStorage.removeItem('userId');
             localStorage.removeItem('cart');
             localStorage.removeItem('wishlist');
             window.dispatchEvent(new Event('auth-change'));

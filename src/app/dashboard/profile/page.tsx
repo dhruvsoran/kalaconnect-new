@@ -62,18 +62,23 @@ export default function ProfilePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
-      if (json.user) {
-        const profileData = json.user as UserProfile;
-        setProfile(profileData);
-        form.reset({
-          name: profileData.name || "",
-          email: profileData.email || "",
-          location: profileData.location || "",
-          story: profileData.story || "",
-          heritage: profileData.heritage || "",
-          avatar: profileData.avatar || "",
-        });
+      if (!json.user) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('isLoggedIn');
+        window.dispatchEvent(new Event('auth-change'));
+        router.push('/login');
+        return;
       }
+      const profileData = json.user as UserProfile;
+      setProfile(profileData);
+      form.reset({
+        name: profileData.name || "",
+        email: profileData.email || "",
+        location: profileData.location || "",
+        story: profileData.story || "",
+        heritage: profileData.heritage || "",
+        avatar: profileData.avatar || "",
+      });
     } catch (e) {
       console.error('Failed to load profile', e);
     } finally {

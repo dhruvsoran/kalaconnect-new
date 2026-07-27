@@ -101,7 +101,8 @@ export function SiteHeader() {
                                                 <LayoutDashboard className="h-4 w-4" />
                                                 Dashboard
                                             </Link>
-                                            <Button variant="ghost" className="justify-start gap-3 px-3 py-2.5" onClick={() => {
+                                            <Button variant="ghost" className="justify-start gap-3 px-3 py-2.5" onClick={async () => {
+                                                try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
                                                 localStorage.removeItem('token');
                                                 localStorage.removeItem('isLoggedIn');
                                                 localStorage.removeItem('userRole');
