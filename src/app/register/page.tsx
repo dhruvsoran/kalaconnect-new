@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { KalaConnectIcon } from '@/components/icons';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Check, X, Mail } from 'lucide-react';
+import { Loader2, Check, X, Mail, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
 import { validatePassword } from '@/lib/password-validation';
@@ -68,6 +68,20 @@ function RegisterForm() {
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
+
+      if (json.token) {
+        localStorage.setItem('token', json.token);
+        localStorage.setItem('isLoggedIn', 'true');
+        if (json.user?.role) localStorage.setItem('userRole', json.user.role);
+        if (json.user?.id) localStorage.setItem('userId', json.user.id);
+        window.dispatchEvent(new Event('auth-change'));
+        toast({
+          title: 'Account created!',
+          description: 'Welcome to KalaConnect. Please check your email to verify your account.',
+        });
+        router.push(json.user?.role === 'artisan' ? '/dashboard' : '/explore');
+        return;
+      }
 
       setRegisteredEmail(email);
       toast({

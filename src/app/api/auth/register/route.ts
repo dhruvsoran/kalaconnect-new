@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { hashPassword } from '@/lib/password';
+import { signToken } from '@/lib/jwt';
 import { validatePassword } from '@/lib/password-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { validateEmail, validateName, sanitizeInput, getClientIp } from '@/lib/validation';
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
   }
 
   const user = { id: userId, email: sanitizedEmail, name: sanitizedName, role: userRole, emailVerified: false };
+  const token = signToken({ sub: userId, email: sanitizedEmail });
 
   logAuth('success', 'New user registered', `Email: ${sanitizedEmail}, Role: ${userRole}, Name: ${sanitizedName || 'N/A'}`, {
     userId, userEmail: sanitizedEmail, userRole,
@@ -95,6 +97,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     message: 'Account created. Please check your email to verify your account.',
     needsVerification: true,
+    token,
     user,
   });
 }
