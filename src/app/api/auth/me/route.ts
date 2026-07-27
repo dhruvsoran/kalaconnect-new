@@ -33,6 +33,12 @@ async function handleToken(req: Request, token: string) {
       name: user.name || null,
       role: user.role || 'buyer',
       emailVerified: user.emailVerified !== false,
+      avatar: user.avatar || null,
+      location: user.location || null,
+      story: user.story || null,
+      heritage: user.heritage || null,
+      phone: user.phone || null,
+      address: user.address || null,
     },
   });
 }

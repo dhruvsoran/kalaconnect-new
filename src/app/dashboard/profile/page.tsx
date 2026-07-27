@@ -23,6 +23,8 @@ const profileSchema = z.object({
   story: z.string().optional(),
   heritage: z.string().optional(),
   avatar: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
 });
 
 type ProfileValues = z.infer<typeof profileSchema>;
@@ -36,6 +38,8 @@ type UserProfile = {
   story?: string;
   heritage?: string;
   avatar?: string;
+  phone?: string;
+  address?: string;
 };
 
 export default function ProfilePage() {
@@ -74,6 +78,8 @@ export default function ProfilePage() {
         story: profileData.story || "",
         heritage: profileData.heritage || "",
         avatar: profileData.avatar || "",
+        phone: profileData.phone || "",
+        address: profileData.address || "",
       });
     } catch (e) {
       console.error('Failed to load profile', e);
@@ -114,6 +120,8 @@ export default function ProfilePage() {
           story: values.story,
           heritage: values.heritage,
           avatar: values.avatar,
+          phone: values.phone,
+          address: values.address,
         }),
       });
       const json = await res.json();
@@ -197,8 +205,14 @@ export default function ProfilePage() {
                   <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} disabled /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
+              <FormField control={form.control} name="phone" render={({ field }) => (
+                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} placeholder="+91 98765 43210" /></FormControl><FormMessage /></FormItem>
+              )} />
               <FormField control={form.control} name="location" render={({ field }) => (
                 <FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} placeholder="City, State" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="address" render={({ field }) => (
+                <FormItem><FormLabel>Address</FormLabel><FormControl><Textarea className="min-h-20" {...field} placeholder="Street, area, pincode..." /></FormControl><FormMessage /></FormItem>
               )} />
               {isArtisan && (
                 <>
