@@ -230,6 +230,13 @@ export default function AdminDashboard() {
     o.id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredProducts = products.filter(p =>
+    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.artisanName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const totalRevenue = orders.reduce((sum, o) => {
     const raw = o.total;
     let num = 0;
@@ -292,7 +299,7 @@ export default function AdminDashboard() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>All Products ({products.length})</CardTitle>
+                  <CardTitle>All Products ({filteredProducts.length})</CardTitle>
                   <CardDescription>Manage all paintings on the platform</CardDescription>
                 </div>
               </div>
@@ -312,7 +319,7 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.length > 0 ? products.map((product) => (
+                    {filteredProducts.length > 0 ? filteredProducts.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell className="hidden sm:table-cell">
                           <Image
@@ -358,7 +365,7 @@ export default function AdminDashboard() {
         <TabsContent value="orders" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>All Orders ({orders.length})</CardTitle>
+              <CardTitle>All Orders ({filteredOrders.length})</CardTitle>
               <CardDescription>Track and manage all platform orders</CardDescription>
             </CardHeader>
             <CardContent>
@@ -415,7 +422,7 @@ export default function AdminDashboard() {
         <TabsContent value="users" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Platform Buyers ({buyers.length})</CardTitle>
+              <CardTitle>Platform Buyers ({filteredUsers.filter(u => u.role === 'buyer').length})</CardTitle>
               <CardDescription>View all registered buyers.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -460,7 +467,7 @@ export default function AdminDashboard() {
 
         <TabsContent value="artisans" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {artisans.map(artisan => (
+            {filteredUsers.filter(u => u.role === 'artisan').map(artisan => (
               <Card key={artisan.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
                   <Avatar className="h-12 w-12">
@@ -479,7 +486,7 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             ))}
-            {artisans.length === 0 && (
+            {filteredUsers.filter(u => u.role === 'artisan').length === 0 && (
               <div className="col-span-full text-center py-12 text-muted-foreground">
                 No artisans registered yet.
               </div>

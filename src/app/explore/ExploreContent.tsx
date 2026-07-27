@@ -55,6 +55,12 @@ export default function ExploreContent() {
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) setSearchQuery(q);
+  }, []);
+
+  useEffect(() => {
     async function fetchProducts() {
       try {
         const res = await fetch('/api/db/products?select=id,name,description,price,image,artisanName,status,category,tags');
