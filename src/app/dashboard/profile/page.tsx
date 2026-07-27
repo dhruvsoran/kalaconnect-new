@@ -53,17 +53,13 @@ export default function ProfilePage() {
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
     try {
-      const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch('/api/auth/me', { headers });
       const json = await res.json();
       if (!json.user) {
-        localStorage.removeItem('token');
+        if (token) localStorage.removeItem('token');
         localStorage.removeItem('isLoggedIn');
         window.dispatchEvent(new Event('auth-change'));
         router.push('/login');

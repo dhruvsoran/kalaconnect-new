@@ -163,6 +163,7 @@ export async function GET(req: Request) {
       email: user.email,
       name: user.name || '',
       role: user.role || 'buyer',
+      token: jwtToken,
     }), {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

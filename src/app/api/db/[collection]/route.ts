@@ -35,7 +35,11 @@ async function logToDB(level: string, category: string, message: string, details
 
 async function getRequester(req: Request) {
   const auth = req.headers.get('authorization') || '';
-  const token = auth?.replace('Bearer ', '') || null;
+  let token = auth?.replace('Bearer ', '') || null;
+  if (!token) {
+    const cookie = req.headers.get('cookie') || '';
+    token = cookie.split(';').find(c => c.trim().startsWith('auth_token='))?.split('=')[1] || null;
+  }
   if (!token) return null;
   const payload = verifyToken(token);
   if (!payload?.email) return null;

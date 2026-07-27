@@ -76,6 +76,7 @@ function LoginForm() {
           const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=').slice(1).join('=')));
           
           // Store user info in localStorage for client-side access
+          localStorage.setItem('token', userInfo.token || '');
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('userId', userInfo.id);
           localStorage.setItem('userEmail', userInfo.email);
