@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.kalaconnect.me/about' },
 };
 
+export const revalidate = 300;
+
 export default async function AboutPage() {
   const stats = await getPlatformStats();
   return (

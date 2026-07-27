@@ -47,9 +47,9 @@ type Product = {
 
 const categories = ['All', 'Paintings', 'Sculptures', 'Textiles', 'Pottery', 'Jewelry', 'Other'];
 
-export default function ExploreContent() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ExploreContent({ initialProducts = [] }: { initialProducts?: Product[] }) {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [loading, setLoading] = useState(initialProducts.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -61,6 +61,7 @@ export default function ExploreContent() {
   }, []);
 
   useEffect(() => {
+    if (initialProducts.length > 0) return;
     async function fetchProducts() {
       try {
         const res = await fetch('/api/db/products?select=id,name,description,price,image,artisanName,status,category,tags');
@@ -75,7 +76,7 @@ export default function ExploreContent() {
       }
     }
     fetchProducts();
-  }, []);
+  }, [initialProducts.length]);
 
   const filteredProducts = useMemo(() => products.filter((product) => {
     const matchesSearch = searchQuery === '' ||

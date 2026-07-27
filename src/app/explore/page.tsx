@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getDb } from '@/lib/mongodb';
 import ExploreContent from './ExploreContent';
 
 export const metadata: Metadata = {
@@ -12,6 +13,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ExplorePage() {
-  return <ExploreContent />;
+export const revalidate = 60;
+
+async function getProducts() {
+  try {
+    const db = await getDb();
+    const col = db.collection('products');
+    const items = await col.find({ status: 'Active' }).sort({ createdAt: -1 }).toArray();
+    return items.map(it => ({
+      id: it._id.toString(),
+      name: it.name,
+      description: it.description,
+      price: it.price,
+      image: it.image,
+      artisanName: it.artisanName,
+      status: it.status,
+      category: it.category,
+      tags: it.tags,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function ExplorePage() {
+  const products = await getProducts();
+  return <ExploreContent initialProducts={products} />;
 }
