@@ -177,7 +177,7 @@ function ProductTable({ products, onDelete }: { products: Product[]; onDelete: (
                 <TableHead className="hidden sm:table-cell">Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Price</TableHead>
+                <TableHead className="hidden sm:table-cell">Price</TableHead>
                 <TableHead className="hidden md:table-cell">Stock</TableHead>
                 <TableHead className="hidden md:table-cell">Created</TableHead>
                 <TableHead>Actions</TableHead>
@@ -201,7 +201,7 @@ function ProductTable({ products, onDelete }: { products: Product[]; onDelete: (
                       {product.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">₹{product.price}</TableCell>
+                  <TableCell className="hidden sm:table-cell">₹{product.price}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : 'N/A'}

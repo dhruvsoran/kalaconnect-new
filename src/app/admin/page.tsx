@@ -317,7 +317,7 @@ export default function AdminDashboard() {
                       <TableHead>Name</TableHead>
                       <TableHead className="hidden md:table-cell">Artisan</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="hidden md:table-cell">Price</TableHead>
+                      <TableHead className="hidden sm:table-cell">Price</TableHead>
                       <TableHead className="hidden md:table-cell">Stock</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
                         <TableCell>
                           <Badge variant={product.status === 'Active' ? 'default' : 'secondary'}>{product.status}</Badge>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">₹{product.price}</TableCell>
+                        <TableCell className="hidden sm:table-cell">₹{product.price}</TableCell>
                         <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
                         <TableCell>
                           <Button
