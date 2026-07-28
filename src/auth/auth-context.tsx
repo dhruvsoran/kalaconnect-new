@@ -19,7 +19,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loadCurrentUser = async () => {
     setLoading(true);
     try {
-      const token = (typeof window !== 'undefined' && localStorage.getItem('token')) || null;
+      let token = (typeof window !== 'undefined' && localStorage.getItem('token')) || null;
+
+      // Fallback: populate localStorage from user_info cookie (Google OAuth)
+      if (!token && typeof document !== 'undefined') {
+        const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_info='));
+        if (userInfoCookie) {
+          try {
+            const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=').slice(1).join('=')));
+            if (userInfo.token) {
+              localStorage.setItem('token', userInfo.token);
+              localStorage.setItem('isLoggedIn', 'true');
+              localStorage.setItem('userId', userInfo.id);
+              localStorage.setItem('userEmail', userInfo.email);
+              localStorage.setItem('userName', userInfo.name || '');
+              localStorage.setItem('userRole', userInfo.role || 'buyer');
+              token = userInfo.token;
+            }
+          } catch {}
+        }
+      }
+
       const res = await fetch('/api/auth/me', {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });

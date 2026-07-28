@@ -9,9 +9,7 @@ export const metadata: Metadata = {
     description: 'Browse authentic handcrafted Indian art from verified artisans.',
     url: 'https://www.kalaconnect.me/explore',
   },
-  alternates: {
-    canonical: 'https://www.kalaconnect.me/explore',
-  },
+
 };
 
 export default function ExploreLayout({ children }: { children: React.ReactNode }) {

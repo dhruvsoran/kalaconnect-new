@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     canonical: 'https://www.kalaconnect.me/register',
   },
   robots: {
-    index: true,
+    index: false,
     follow: true,
   },
 };

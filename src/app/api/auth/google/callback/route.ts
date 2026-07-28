@@ -141,10 +141,9 @@ export async function GET(req: Request) {
     const userId = user._id.toString();
     const jwtToken = signToken({ sub: userId, email: user.email });
 
-    // Set JWT in HTTP-only cookie instead of URL params
-    const redirectUrl = new URL('/login', req.url);
-    redirectUrl.searchParams.set('google-login', 'success');
-    redirectUrl.searchParams.set('userRole', user.role || 'buyer');
+    const role = user.role || 'buyer';
+    const destination = role === 'admin' ? '/admin' : role === 'artisan' ? '/dashboard' : '/explore';
+    const redirectUrl = new URL(destination, req.url);
 
     const response = NextResponse.redirect(redirectUrl);
     

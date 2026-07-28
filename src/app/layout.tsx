@@ -66,9 +66,7 @@ export const metadata: Metadata = {
   verification: {
     google:'4Qv0hWyMwDVhoz6riJz8zRr_rxYVtkjy4jiLVr03pTk',
   },
-  alternates: {
-    canonical: 'https://www.kalaconnect.me',
-  },
+
 };
 
 export const viewport: Viewport = {

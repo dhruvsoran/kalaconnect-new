@@ -5,5 +5,7 @@ Disallow: /admin
 Disallow: /cart
 Disallow: /checkout
 Disallow: /api/
+Disallow: /auth/
+Disallow: /verify-email/
 
 Sitemap: https://www.kalaconnect.me/sitemap.xml

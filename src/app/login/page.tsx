@@ -69,13 +69,10 @@ function LoginForm() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('google-login') === 'success') {
-      // Read user info from cookie instead of URL params
       const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_info='));
       if (userInfoCookie) {
         try {
           const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=').slice(1).join('=')));
-          
-          // Store user info in localStorage for client-side access
           localStorage.setItem('token', userInfo.token || '');
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('userId', userInfo.id);
