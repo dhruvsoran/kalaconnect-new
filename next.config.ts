@@ -21,11 +21,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/:path*/',
-        destination: '/:path*',
-        permanent: true,
-      },
-      {
         source: '/:path*',
         has: [{ type: 'host', value: 'kalaconnect.me' }],
         destination: 'https://www.kalaconnect.me/:path*',
