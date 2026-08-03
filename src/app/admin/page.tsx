@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ShieldCheck,
   Search,
+  SearchX,
   Trash2,
   Eye,
   Truck,
@@ -241,6 +242,10 @@ export default function AdminDashboard() {
     p.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const hasActiveSearch = searchTerm.trim() !== '';
+  const filteredBuyers = filteredUsers.filter(u => u.role === 'buyer');
+  const filteredArtisans = filteredUsers.filter(u => u.role === 'artisan');
+
   const totalRevenue = orders.reduce((sum, o) => {
     const raw = o.total;
     let num = 0;
@@ -354,8 +359,12 @@ export default function AdminDashboard() {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
-                          No products on the platform yet.
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          {hasActiveSearch ? (
+                            <EmptySearchState searchTerm={searchTerm} onClear={() => setSearchTerm('')} />
+                          ) : (
+                            <div className="h-24 flex items-center justify-center">No products on the platform yet.</div>
+                          )}
                         </TableCell>
                       </TableRow>
                     )}
@@ -411,8 +420,12 @@ export default function AdminDashboard() {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                          No orders yet.
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          {hasActiveSearch ? (
+                            <EmptySearchState searchTerm={searchTerm} onClear={() => setSearchTerm('')} />
+                          ) : (
+                            <div className="h-24 flex items-center justify-center">No orders yet.</div>
+                          )}
                         </TableCell>
                       </TableRow>
                     )}
@@ -426,7 +439,7 @@ export default function AdminDashboard() {
         <TabsContent value="users" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Platform Buyers ({filteredUsers.filter(u => u.role === 'buyer').length})</CardTitle>
+              <CardTitle>Platform Buyers ({filteredBuyers.length})</CardTitle>
               <CardDescription>View all registered buyers.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -440,7 +453,7 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.filter(u => u.role === 'buyer').map(u => (
+                    {filteredBuyers.map(u => (
                       <TableRow key={u.id}>
                         <TableCell className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
@@ -455,10 +468,14 @@ export default function AdminDashboard() {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {buyers.length === 0 && (
+                    {filteredBuyers.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
-                          No buyers registered yet.
+                        <TableCell colSpan={3} className="text-center text-muted-foreground">
+                          {hasActiveSearch ? (
+                            <EmptySearchState searchTerm={searchTerm} onClear={() => setSearchTerm('')} />
+                          ) : (
+                            <div className="h-24 flex items-center justify-center">No buyers registered yet.</div>
+                          )}
                         </TableCell>
                       </TableRow>
                     )}
@@ -471,7 +488,7 @@ export default function AdminDashboard() {
 
         <TabsContent value="artisans" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredUsers.filter(u => u.role === 'artisan').map(artisan => (
+            {filteredArtisans.map(artisan => (
               <Card key={artisan.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-4">
                   <Avatar className="h-12 w-12">
@@ -490,9 +507,13 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             ))}
-            {filteredUsers.filter(u => u.role === 'artisan').length === 0 && (
+            {filteredArtisans.length === 0 && (
               <div className="col-span-full text-center py-12 text-muted-foreground">
-                No artisans registered yet.
+                {hasActiveSearch ? (
+                  <EmptySearchState searchTerm={searchTerm} onClear={() => setSearchTerm('')} />
+                ) : (
+                  <div className="py-4">No artisans registered yet.</div>
+                )}
               </div>
             )}
           </div>
@@ -783,6 +804,23 @@ function AdminSkeleton() {
         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 w-full" />)}
       </div>
       <Skeleton className="h-[400px] w-full" />
+    </div>
+  );
+}
+
+function EmptySearchState({ searchTerm, onClear }: { searchTerm: string; onClear: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-10">
+      <SearchX className="h-8 w-8 text-muted-foreground/60" />
+      <div>
+        <p className="font-medium text-foreground">No Results Found</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          No matches for &ldquo;{searchTerm}&rdquo;. Try a different search term.
+        </p>
+      </div>
+      <Button variant="outline" size="sm" onClick={onClear}>
+        Clear Search
+      </Button>
     </div>
   );
 }
