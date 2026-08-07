@@ -90,6 +90,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0a0a0a" />
         <meta name="google-adsense-account" content="ca-pub-8760219681435243" />
+        <meta name="msvalidate.01" content="DDF8E6D2CA514B6FBE5E3BF4071F3FF5" />
         <GoogleAnalytics />
       </head>
       <body className="font-body antialiased min-h-screen relative">
