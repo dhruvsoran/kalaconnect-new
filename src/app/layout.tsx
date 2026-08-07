@@ -30,6 +30,16 @@ export const metadata: Metadata = {
   authors: [{ name: 'KalaConnect' }],
   creator: 'KalaConnect',
   publisher: 'KalaConnect',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: { url: '/favicon-180x180.png', sizes: '180x180' },
+  },
+  manifest: '/site.webmanifest',
+  themeColor: '#0a0a0a',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
@@ -69,6 +79,9 @@ export const metadata: Metadata = {
       'msvalidate.01': 'DDF8E6D2CA514B6FBE5E3BF4071F3FF5',
     },
   },
+  other: {
+    'google-adsense-account': 'ca-pub-8760219681435243',
+  },
 
 };
 
@@ -86,13 +99,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${ptSans.variable} ${playfair.variable}`}>
       <head>
-        <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
-        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
-        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
-        <link rel="apple-touch-icon" href="/favicon-180x180.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#0a0a0a" />
-        <meta name="google-adsense-account" content="ca-pub-8760219681435243" />
         <GoogleAnalytics />
       </head>
       <body className="font-body antialiased min-h-screen relative">
