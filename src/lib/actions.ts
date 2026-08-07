@@ -21,6 +21,7 @@ import {
 } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { verifyToken } from "@/lib/jwt";
+import { notifyUrlUpdate, notifyUrlRemoval } from "@/lib/indexnow";
 
 type GenerateProductDescriptionActionInput = {
   productImageUri: string;
@@ -102,7 +103,8 @@ export async function saveProductAction(productData: {
                 return { error: "You can only edit your own products." };
             }
             const productToUpdate: Partial<Product> = { ...newProductData };
-            const savedProduct = await updateProduct(productId, productToUpdate);
+            await updateProduct(productId, productToUpdate);
+            await notifyUrlUpdate([`https://www.kalaconnect.me/product/${productId}`]);
         } else {
             if (artisanId !== userId) {
                 return { error: "You can only create products for your own account." };
@@ -113,11 +115,13 @@ export async function saveProductAction(productData: {
               artisanName 
             };
             const savedProduct = await addProduct(productToAdd);
+            await notifyUrlUpdate([`https://www.kalaconnect.me/product/${savedProduct._id}`]);
         }
         
         revalidatePath('/dashboard/products');
         revalidatePath('/explore');
         revalidatePath('/');
+        
         return { success: true, product: null };
     } catch (error) {
         console.error("Error in saveProductAction:", error);
@@ -152,6 +156,7 @@ export async function deleteProductAction(productId: string) {
         }
 
         const result = await deleteProductDb(productId);
+        await notifyUrlRemoval([`https://www.kalaconnect.me/product/${productId}`]);
         revalidatePath('/dashboard/products');
         revalidatePath('/explore');
         revalidatePath('/');
