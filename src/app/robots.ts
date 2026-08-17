@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard', '/admin', '/cart', '/checkout', '/api/', '/auth/', '/verify-email/'],
+        disallow: ['/login', '/register', '/dashboard', '/admin', '/cart', '/checkout', '/api/', '/auth/', '/verify-email/'],
       },
     ],
     sitemap: 'https://www.kalaconnect.me/sitemap.xml',
