@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
 import { resend, SENDER_EMAIL } from '@/lib/resend';
 
@@ -40,8 +41,16 @@ export async function verifyEmailToken(token: string): Promise<{ success: boolea
     return { success: false, error: 'Token has expired. Please request a new one.' };
   }
 
+  let userObjectId: ObjectId;
+  try {
+    userObjectId = new ObjectId(record.userId);
+  } catch {
+    await tokens.deleteOne({ _id: record._id });
+    return { success: false, error: 'Invalid verification token' };
+  }
+
   await users.updateOne(
-    { _id: record.userId },
+    { _id: userObjectId },
     { $set: { emailVerified: true } }
   );
 
