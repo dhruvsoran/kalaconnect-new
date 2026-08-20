@@ -152,11 +152,12 @@ export function ProductDescriptionForm({ product }: ProductDescriptionFormProps)
 
     const data = form.getValues();
 
-    if (!isEditMode && !generatedDescription) {
+    const description = (generatedDescription || product?.description || '').trim();
+    if (description.length < 10) {
       toast({
         variant: "destructive",
-        title: "Cannot Save",
-        description: "Please generate a description before saving.",
+        title: "Description Required",
+        description: "Please write a product description (at least 10 characters) or use AI to generate one.",
       });
       return;
     }
@@ -182,7 +183,7 @@ export function ProductDescriptionForm({ product }: ProductDescriptionFormProps)
 
       const result = await saveProductAction({
         name: data.productName,
-        description: generatedDescription || product?.description || '',
+        description,
         price: data.price,
         stock: data.stock,
         status: data.status,
@@ -193,6 +194,7 @@ export function ProductDescriptionForm({ product }: ProductDescriptionFormProps)
         tags: [data.craftTechniques, data.productRegion],
         isEditing: isEditMode,
         productId: product?.id,
+        authToken: token || undefined,
       });
 
       if (result.error) {
@@ -350,12 +352,12 @@ export function ProductDescriptionForm({ product }: ProductDescriptionFormProps)
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Generated Description</CardTitle>
-              <CardDescription>Your AI-crafted product story. You can edit it before saving.</CardDescription>
+              <CardTitle>Product Description</CardTitle>
+              <CardDescription>Write your own product story, or use AI to generate one and edit it before saving.</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea
-                placeholder="Your generated description will appear here..."
+                placeholder="Describe your artwork — materials, technique, cultural significance, and what makes it special..."
                 value={generatedDescription}
                 onChange={(e) => setGeneratedDescription(e.target.value)}
                 rows={10}

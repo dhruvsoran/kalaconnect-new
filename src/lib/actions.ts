@@ -33,10 +33,13 @@ type GenerateProductDescriptionActionInput = {
   productRegion: string;
 };
 
-async function getCurrentUserId(): Promise<string | null> {
+async function getCurrentUserId(authToken?: string): Promise<string | null> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
+    let token = authToken;
+    if (!token) {
+      const cookieStore = await cookies();
+      token = cookieStore.get('token')?.value || cookieStore.get('auth_token')?.value;
+    }
     if (!token) return null;
     const payload = verifyToken(token);
     return payload?.sub || null;
@@ -88,14 +91,14 @@ export async function saveProductAction(productData: {
     artisanName: string;
     isEditing: boolean;
     productId?: string;
+    authToken?: string;
 }) {
     try {
-        const userId = await getCurrentUserId();
+        const { isEditing, productId, artisanId, artisanName, authToken, ...newProductData } = productData;
+        const userId = await getCurrentUserId(authToken);
         if (!userId) {
             return { error: "Authentication required." };
         }
-
-        const { isEditing, productId, artisanId, artisanName, ...newProductData } = productData;
 
         if (isEditing && productId) {
             const existingProduct = await getProductByIdForAction(productId);
@@ -140,9 +143,9 @@ async function getProductByIdForAction(id: string) {
     }
 }
 
-export async function deleteProductAction(productId: string) {
+export async function deleteProductAction(productId: string, authToken?: string) {
     try {
-        const userId = await getCurrentUserId();
+        const userId = await getCurrentUserId(authToken);
         if (!userId) {
             return { error: "Authentication required." };
         }
@@ -173,10 +176,11 @@ export async function updateOrderStatusAction(
   status: 'Processing' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled',
   updatedBy: string,
   updatedByRole: 'buyer' | 'artisan' | 'admin' | 'system',
-  note?: string
+  note?: string,
+  authToken?: string
 ) {
     try {
-        const userId = await getCurrentUserId();
+        const userId = await getCurrentUserId(authToken);
         if (!userId) {
             return { error: "Authentication required." };
         }

@@ -184,7 +184,8 @@ export default function AdminDashboard() {
   }, [user, authLoading, router, fetchData]);
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
-    const result = await deleteProductAction(productId);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : undefined;
+    const result = await deleteProductAction(productId, token || undefined);
     if ('success' in result && result.success) {
       setProducts(products.filter(p => p.id !== productId));
       toast({ title: 'Product Deleted', description: `"${productName}" has been removed.` });
@@ -201,7 +202,8 @@ export default function AdminDashboard() {
         newStatus as any,
         user?.id || '',
         'admin',
-        `Status updated by admin`
+        `Status updated by admin`,
+        typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined
       );
       if ('success' in result && result.success) {
         setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));

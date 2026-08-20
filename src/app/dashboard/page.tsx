@@ -156,7 +156,8 @@ function ArtisanDashboard({ userId }: { userId: string }) {
         newStatus as any,
         userId,
         'artisan',
-        `Status updated by artisan`
+        `Status updated by artisan`,
+        typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined
       );
       if ('success' in result && result.success) {
         setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
