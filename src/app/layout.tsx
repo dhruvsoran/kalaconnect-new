@@ -39,7 +39,6 @@ export const metadata: Metadata = {
     apple: { url: '/favicon-180x180.png', sizes: '180x180' },
   },
   manifest: '/site.webmanifest',
-  themeColor: '#0a0a0a',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
@@ -89,6 +88,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  themeColor: '#0a0a0a',
 };
 
 export default function RootLayout({
