@@ -76,6 +76,35 @@ async function handleGetUsers(col: any, requester: any) {
 
 async function handleGetOrders(col: any, requester: any) {
   if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Self-heal legacy orders whose items are missing artisanId (previously
+  // stripped by the cart sanitizer) so artisans can see and progress them.
+  try {
+    const db = await getDb();
+    const products = db.collection('products');
+    const legacy = await col.find({
+      items: { $elemMatch: { $or: [{ artisanId: { $exists: false } }, { artisanId: '' }, { artisanId: null }] } },
+    }).limit(500).toArray();
+    for (const order of legacy) {
+      let changed = false;
+      for (const item of (order.items || [])) {
+        if (!item.artisanId && item.productId) {
+          try {
+            const product = await products.findOne({ _id: new ObjectId(item.productId) });
+            if (product) {
+              item.artisanId = product.artisanId || '';
+              if (!item.artisanName) item.artisanName = product.artisanName || 'Unknown Artisan';
+              changed = true;
+            }
+          } catch { /* invalid productId */ }
+        }
+      }
+      if (changed) {
+        await col.updateOne({ _id: order._id }, { $set: { items: order.items } });
+      }
+    }
+  } catch { /* repair is best-effort */ }
+
   let query: any = {};
   if (requester.role === 'admin') query = {};
   else if (requester.role === 'artisan') query = { 'items.artisanId': requester._id?.toString?.() };

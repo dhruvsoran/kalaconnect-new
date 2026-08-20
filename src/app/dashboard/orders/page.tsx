@@ -8,6 +8,7 @@ import { ListOrdered, Package, Truck, CheckCircle, Clock, XCircle, Loader2, Eye,
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { useUser } from '@/auth';
 
 type OrderItem = {
   productName: string;
@@ -51,6 +52,8 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const router = useRouter();
+  const { user } = useUser();
+  const isArtisan = user?.role === 'artisan';
 
   const fetchOrders = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -162,10 +165,22 @@ export default function OrdersPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <ListOrdered className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-20" />
-            <p className="text-lg text-muted-foreground">You haven&apos;t placed any orders yet.</p>
-            <Button asChild className="mt-4">
-              <a href="/explore">Start Shopping</a>
-            </Button>
+            {isArtisan ? (
+              <>
+                <p className="text-lg text-muted-foreground">No orders for your artworks yet.</p>
+                <p className="text-sm text-muted-foreground mt-1">When a buyer places an order, it will appear here so you can update the status.</p>
+                <Button asChild className="mt-4">
+                  <a href="/dashboard/products">View My Products</a>
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-lg text-muted-foreground">You haven&apos;t placed any orders yet.</p>
+                <Button asChild className="mt-4">
+                  <a href="/explore">Start Shopping</a>
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
