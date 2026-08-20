@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
+import { BrandLoading } from '@/components/brand-loading';
 import { Suspense } from 'react';
 
 function GoogleIcon() {
@@ -289,7 +290,7 @@ export default function LoginPage() {
         <div className="absolute bottom-20 right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl animate-float-slow" />
       </div>
       <FadeIn direction="up" className="w-full">
-        <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+        <Suspense fallback={<BrandLoading fullScreen />}>
           <LoginForm />
         </Suspense>
       </FadeIn>

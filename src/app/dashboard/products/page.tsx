@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { BrandLoading } from '@/components/brand-loading';
 import {
   Card,
   CardContent,
@@ -120,11 +121,7 @@ export default function ProductsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <BrandLoading />;
   }
 
   return (

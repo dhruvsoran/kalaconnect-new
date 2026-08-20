@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductDescriptionForm } from "@/components/product-description-form";
+import { BrandLoading } from "@/components/brand-loading";
 import { useEffect, useState, use } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -69,11 +70,7 @@ export default function EditProductPage({ params }: { params: Promise<{ name: st
           Edit Product
         </h1>
       </div>
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
+      {loading && <BrandLoading />}
       {error && (
         <Card>
           <CardHeader>

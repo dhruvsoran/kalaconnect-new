@@ -40,9 +40,9 @@ export function SiteHeader() {
             isScrolled && "shadow-sm"
         )}>
             <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-                <Link href="/" className="mr-auto flex items-center gap-2 font-bold text-xl font-headline transition-colors active:text-accent active:animate-pop">
-                    <KalaConnectIcon className="h-7 w-7 text-primary" />
-                    <span>कलाConnect</span>
+                <Link href="/" className="mr-auto flex items-center gap-1.5 sm:gap-2 font-bold text-lg sm:text-xl font-headline transition-colors active:text-accent active:animate-pop">
+                    <KalaConnectIcon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
+                    <span className="whitespace-nowrap">कलाConnect</span>
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-1">
@@ -65,7 +65,7 @@ export function SiteHeader() {
                     ))}
                 </nav>
 
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-1 sm:gap-2 ml-auto md:ml-4">
                     <ThemeToggle />
                     <HomeHeaderActions />
                     <Sheet open={open} onOpenChange={setOpen}>

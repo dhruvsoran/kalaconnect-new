@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart, Cell } from "recharts"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
+import { BrandLoading } from "@/components/brand-loading"
 import { DollarSign, Package, Loader2 } from "lucide-react"
 import type { Order } from "@/lib/db"
 
@@ -118,11 +119,7 @@ export default function AnalyticsPage() {
   }, [fetchOrders])
 
   if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center min-h-[400px]">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    )
+    return <BrandLoading />
   }
 
   const hasOrders = orders.length > 0

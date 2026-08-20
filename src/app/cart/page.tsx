@@ -122,7 +122,8 @@ export default function CartPage() {
                     </CardHeader>
                     <CardContent>
                         {cart.length > 0 ? (
-                            <div className="overflow-x-auto">
+                            <>
+                            <div className="hidden sm:block overflow-x-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -189,6 +190,49 @@ export default function CartPage() {
                                 </TableFooter>
                             </Table>
                             </div>
+                            <div className="sm:hidden space-y-3">
+                                {cart.map((item) => (
+                                    <div key={item.name} className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                                        <Image src={item.image} alt={item.name} width={64} height={64} className="h-16 w-16 shrink-0 rounded-md object-cover" />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="line-clamp-2 text-sm font-medium">{item.name}</p>
+                                            <p className="mt-1 text-sm text-muted-foreground">₹{item.price}</p>
+                                        </div>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" aria-label={`Remove ${item.name} from cart`}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently remove
+                                                        "{item.name}" from your cart.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => removeFromCart(item.name)}>
+                                                        Remove
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                ))}
+                                <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-3">
+                                    <span className="font-bold text-lg">Subtotal</span>
+                                    <span className="font-bold text-lg">₹{getSubtotal().toFixed(2)}</span>
+                                </div>
+                                <motion.div whileTap={{ scale: 0.98 }}>
+                                    <Button asChild size="lg" className="w-full">
+                                        <Link href="/checkout">Proceed to Checkout</Link>
+                                    </Button>
+                                </motion.div>
+                            </div>
+                            </>
                         ) : (
                             <div className="text-center py-12">
                                 <p className="text-muted-foreground text-lg">Your cart is empty.</p>

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { LayoutDashboard, Package, ShoppingCart, CreditCard, BarChart3, MessageSquare, Megaphone, Settings, Menu, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/auth';
+import { BrandLoading } from '@/components/brand-loading';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [user, loading, router]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <BrandLoading fullScreen />;
   }
 
   if (!user) return null;
@@ -117,7 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main content */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8">
+      <main className="flex-1 md:ml-64 p-4 pt-14 md:pt-8 md:p-8">
         {children}
       </main>
     </div>

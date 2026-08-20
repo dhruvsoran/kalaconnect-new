@@ -144,11 +144,11 @@ export default function OrdersPage() {
                       style={{ width: `${cfg.progress}%` }}
                     />
                   </div>
-                  <div className="grid grid-cols-4 mt-2 text-xs text-muted-foreground">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 mt-2 text-xs text-muted-foreground">
                     <span>Processing</span>
-                    <span className="text-center">Confirmed</span>
-                    <span className="text-center">Shipped</span>
-                    <span className="text-right">Delivered</span>
+                    <span className="sm:text-center">Confirmed</span>
+                    <span className="sm:text-center">Shipped</span>
+                    <span className="sm:text-right">Delivered</span>
                   </div>
                 </div>
                 {order.trackingNumber && (
@@ -187,11 +187,11 @@ export default function OrdersPage() {
                   style={{ width: `${(statusConfig[selectedOrder.status] || statusConfig.Processing).progress}%` }}
                 />
               </div>
-              <div className="grid grid-cols-4 mt-2 text-xs text-muted-foreground">
+              <div className="grid grid-cols-2 sm:grid-cols-4 mt-2 text-xs text-muted-foreground">
                 <span>Processing</span>
-                <span className="text-center">Confirmed</span>
-                <span className="text-center">Shipped</span>
-                <span className="text-right">Delivered</span>
+                <span className="sm:text-center">Confirmed</span>
+                <span className="sm:text-center">Shipped</span>
+                <span className="sm:text-right">Delivered</span>
               </div>
             </div>
 

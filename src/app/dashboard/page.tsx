@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BrandLoading } from '@/components/brand-loading';
 import { useUser } from '@/auth';
 import { updateOrderStatusAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -187,7 +188,7 @@ function ArtisanDashboard({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl md:text-3xl font-bold font-headline">Artisan Workspace</h1>
         <Button asChild size="sm">
           <Link href="/dashboard/products/new">Add Painting</Link>
@@ -298,11 +299,11 @@ function ArtisanDashboard({ userId }: { userId: string }) {
                   style={{ width: `${(statusConfig[selectedOrder.status] || statusConfig.Processing).progress}%` }}
                 />
               </div>
-              <div className="grid grid-cols-4 mt-2 text-xs text-muted-foreground">
+              <div className="grid grid-cols-2 sm:grid-cols-4 mt-2 text-xs text-muted-foreground">
                 <span>Processing</span>
-                <span className="text-center">Confirmed</span>
-                <span className="text-center">Shipped</span>
-                <span className="text-right">Delivered</span>
+                <span className="sm:text-center">Confirmed</span>
+                <span className="sm:text-center">Shipped</span>
+                <span className="sm:text-right">Delivered</span>
               </div>
             </div>
 
@@ -724,11 +725,11 @@ function BuyerDashboard({ userId }: { userId: string }) {
                   style={{ width: `${(statusConfig[selectedOrder.status] || statusConfig.Processing).progress}%` }}
                 />
               </div>
-              <div className="grid grid-cols-4 mt-2 text-xs text-muted-foreground">
+              <div className="grid grid-cols-2 sm:grid-cols-4 mt-2 text-xs text-muted-foreground">
                 <span>Processing</span>
-                <span className="text-center">Confirmed</span>
-                <span className="text-center">Shipped</span>
-                <span className="text-right">Delivered</span>
+                <span className="sm:text-center">Confirmed</span>
+                <span className="sm:text-center">Shipped</span>
+                <span className="sm:text-right">Delivered</span>
               </div>
             </div>
 
@@ -818,11 +819,7 @@ export default function Dashboard() {
   }, [user, authLoading, router]);
 
   if (authLoading || profileLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
+    return <BrandLoading />;
   }
 
   if (!user) return null;
