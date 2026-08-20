@@ -93,6 +93,7 @@ type BuyerProduct = {
   price: number;
   image: string;
   description: string;
+  artisanId?: string;
   artisanName: string;
 };
 

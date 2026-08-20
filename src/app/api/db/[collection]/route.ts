@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { verifyToken } from '@/lib/jwt';
 import { sanitizeInput } from '@/lib/validation';
+import { ObjectId } from 'mongodb';
 
 const ALLOWED_COLLECTIONS = ['users', 'orders', 'products', 'carts', 'likes', 'comments', 'contactMessages', 'systemLogs'];
 
@@ -156,6 +157,24 @@ async function handleGetLogs(col: any, requester: any, url: URL) {
 async function handlePostOrders(col: any, requester: any, body: any) {
   if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const now = new Date();
+
+  // Backfill missing artisanId on order items so artisans see their orders
+  if (Array.isArray(body.items)) {
+    const db = await getDb();
+    const products = db.collection('products');
+    for (const item of body.items) {
+      if (!item.artisanId && item.productId) {
+        try {
+          const product = await products.findOne({ _id: new ObjectId(item.productId) });
+          if (product) {
+            item.artisanId = product.artisanId || '';
+            item.artisanName = item.artisanName || product.artisanName || 'Unknown Artisan';
+          }
+        } catch { /* invalid productId, leave as-is */ }
+      }
+    }
+  }
+
   const res = await col.insertOne({
     ...body, buyerId: requester._id?.toString?.(),
     buyerName: body.buyerName || requester.name || 'Unknown',
@@ -219,7 +238,7 @@ async function handlePostCarts(col: any, requester: any, body: any) {
   const userId = requester._id?.toString?.();
 
   if (action === 'add' && body.product) {
-    const allowed = ['id', 'name', 'price', 'image', 'artisanName', 'description', 'category', 'tags', 'stock', 'status'];
+    const allowed = ['id', 'name', 'price', 'image', 'artisanId', 'artisanName', 'description', 'category', 'tags', 'stock', 'status'];
     const safeProduct = sanitizeObject(body.product, allowed);
     safeProduct.name = sanitizeString(body.product.name || '');
     safeProduct.price = typeof body.product.price === 'number' ? body.product.price : 0;
