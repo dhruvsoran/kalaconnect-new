@@ -19,21 +19,23 @@ export function HomeHeaderActions() {
 
     useEffect(() => {
         const fetchCounts = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setCartCount(0);
-                setWishlistCount(0);
-                return;
-            }
             try {
-                const [cartRes, wishlistRes] = await Promise.all([
-                    fetch('/api/db/carts', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('/api/db/wishlist', { headers: { Authorization: `Bearer ${token}` } }),
-                ]);
+                let storedWishlist: unknown[] = [];
+                try {
+                    storedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+                } catch {
+                    storedWishlist = [];
+                }
+                setWishlistCount(Array.isArray(storedWishlist) ? storedWishlist.length : 0);
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setCartCount(0);
+                    return;
+                }
+                const cartRes = await fetch('/api/db/carts', { headers: { Authorization: `Bearer ${token}` } });
                 const cartJson = await cartRes.json();
-                const wishlistJson = await wishlistRes.json();
                 setCartCount((cartJson.data?.items || []).length);
-                setWishlistCount((wishlistJson.data?.items || []).length);
             } catch (e) {
                 console.error('Failed to fetch counts', e);
             }

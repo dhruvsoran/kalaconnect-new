@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { KalaConnectIcon } from '@/components/icons';
+import { BrandLoading } from '@/components/brand-loading';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 
 function VerifyEmailContent() {
@@ -103,11 +104,7 @@ export default function VerifyEmailPage() {
         <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-20 right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl animate-float-slow" />
       </div>
-      <Suspense fallback={
-        <div className="flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }>
+      <Suspense fallback={<BrandLoading fullScreen />}>
         <VerifyEmailContent />
       </Suspense>
     </div>
