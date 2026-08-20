@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   }
 
   const clientIp = getClientIp(req);
-  const rateLimitResult = await checkRateLimit(`login:${clientIp}:${email}`);
+  const rateLimitResult = await checkRateLimit(`login:${clientIp}:${email.toLowerCase()}`);
   if (!rateLimitResult.success) {
     logAuth('warn', 'Rate limit exceeded', `IP: ${clientIp}, Email: ${email}`);
     return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const users = db.collection('users');
-  const user = await users.findOne({ email });
+  const user = await users.findOne({ email: email.toLowerCase() });
 
   if (!user || !verifyPassword(password, user.password)) {
     logAuth('warn', 'Failed login attempt', `Email: ${email}`);

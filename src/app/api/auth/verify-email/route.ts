@@ -3,6 +3,7 @@ import { verifyEmailToken, createVerificationToken, sendVerificationEmail } from
 import { getDb } from '@/lib/mongodb';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/validation';
+import { signToken } from '@/lib/jwt';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -22,6 +23,40 @@ export async function GET(req: Request) {
   const result = await verifyEmailToken(token);
 
   if (result.success) {
+    // Auto-login the user after successful verification
+    try {
+      const db = await getDb();
+      const user = await db.collection('users').findOne({ _id: new (await import('mongodb')).ObjectId(result.userId) });
+      if (user) {
+        const jwtToken = signToken({ sub: result.userId!, email: user.email });
+        const role = user.role || 'buyer';
+        const destination = role === 'admin' ? '/admin' : role === 'artisan' ? '/dashboard' : '/explore';
+
+        const response = NextResponse.redirect(new URL(`${destination}?verified=true`, req.url));
+        response.cookies.set('auth_token', jwtToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60,
+          path: '/',
+        });
+        response.cookies.set('user_info', JSON.stringify({
+          id: result.userId,
+          email: user.email,
+          name: user.name || '',
+          role,
+          token: jwtToken,
+        }), {
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60,
+          path: '/',
+        });
+        return response;
+      }
+    } catch (e) {
+      console.error('Auto-login after verification failed:', e);
+    }
     return NextResponse.redirect(new URL('/verify-email?success=true', req.url));
   } else {
     const errorParam = encodeURIComponent(result.error || 'Verification failed');

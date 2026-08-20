@@ -102,7 +102,8 @@ export async function GET(req: Request) {
     const db = await getDb();
     const users = db.collection('users');
 
-    let user = await users.findOne({ email: googleUser.email });
+    const normalizedEmail = googleUser.email.toLowerCase();
+    let user = await users.findOne({ email: normalizedEmail });
 
     if (user) {
       await users.updateOne(
@@ -118,7 +119,7 @@ export async function GET(req: Request) {
       user = await users.findOne({ _id: user._id });
     } else {
       const newUser = {
-        email: googleUser.email,
+        email: normalizedEmail,
         password: '',
         name: googleUser.name,
         role: 'buyer' as const,
@@ -128,8 +129,17 @@ export async function GET(req: Request) {
         createdAt: new Date(),
       };
 
-      const result = await users.insertOne(newUser);
-      user = await users.findOne({ _id: result.insertedId });
+      try {
+        const result = await users.insertOne(newUser);
+        user = await users.findOne({ _id: result.insertedId });
+      } catch (e: any) {
+        // Handle duplicate key error (existing email from another provider)
+        if (e?.code === 11000) {
+          user = await users.findOne({ email: normalizedEmail });
+        } else {
+          throw e;
+        }
+      }
     }
 
     if (!user) {

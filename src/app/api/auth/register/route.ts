@@ -67,14 +67,24 @@ export async function POST(req: Request) {
   const userRole = allowedRoles.includes(role) ? role : 'buyer';
 
   const hash = hashPassword(password);
-  const res = await users.insertOne({
-    email: sanitizedEmail,
-    password: hash,
-    name: sanitizedName,
-    role: userRole,
-    emailVerified: false,
-    createdAt: new Date(),
-  });
+  let res;
+  try {
+    res = await users.insertOne({
+      email: sanitizedEmail,
+      password: hash,
+      name: sanitizedName,
+      role: userRole,
+      emailVerified: false,
+      createdAt: new Date(),
+    });
+  } catch (e: any) {
+    // Handle duplicate key error (race condition protection)
+    if (e?.code === 11000) {
+      logAuth('warn', 'Duplicate email registration blocked (unique index)', `Email: ${sanitizedEmail}`);
+      return genericResponse;
+    }
+    throw e;
+  }
 
   const userId = res.insertedId?.toString?.() || '';
 

@@ -51,7 +51,7 @@ export async function verifyEmailToken(token: string): Promise<{ success: boolea
 }
 
 export async function sendVerificationEmail(email: string, token: string, name?: string): Promise<boolean> {
-  const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${token}`;
   const displayName = name || 'there';
 
   try {
