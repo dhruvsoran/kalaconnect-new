@@ -96,6 +96,16 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       return;
     }
 
+    const role = localStorage.getItem('userRole');
+    if (role === 'artisan' || role === 'admin') {
+      toast({
+        variant: 'destructive',
+        title: 'Not Allowed',
+        description: 'Artists/Admins cannot add to wishlist.',
+      });
+      return;
+    }
+
     try {
       const stored = localStorage.getItem('wishlist');
       const wishlist = stored ? JSON.parse(stored) : [];

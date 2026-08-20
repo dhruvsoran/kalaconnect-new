@@ -74,10 +74,10 @@ export function HomeHeaderActions() {
     }
 
     if (user) {
-        const isBuyerOrArtisan = user.role === 'buyer' || user.role === 'artisan';
+        const isBuyer = user.role === 'buyer';
         return (
             <div className="flex items-center gap-2">
-                {isBuyerOrArtisan && (
+                {isBuyer && (
                     <>
                         <Button variant="ghost" size="icon" asChild>
                              <Link href="/wishlist" className="relative">
