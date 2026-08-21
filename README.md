@@ -6,6 +6,7 @@ A production-ready AI-powered digital marketplace connecting Indian artisans dir
 
 ### For Buyers
 - Browse authentic handcrafted artworks from verified artisans
+- Like , share comment on product of artisan
 - Secure checkout with UPI, Cards, and Net Banking
 - Real-time order tracking with status history timeline
 - Rate and review purchases
@@ -53,18 +54,7 @@ A production-ready AI-powered digital marketplace connecting Indian artisans dir
 - MongoDB Atlas cluster (or local MongoDB)
 - Google AI (Gemini) API key
 
-### Environment Variables
 
-Create a `.env` file in the root:
-
-```env
-MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.example.mongodb.net/?appName=Cluster0
-MONGODB_DB_NAME=kalaconnect
-JWT_SECRET=your_jwt_secret_here
-GEMINI_API_KEY=your_gemini_key
-SETUP_SECRET=your_admin_setup_secret
-NODE_ENV=development
-```
 
 ### Installation
 
