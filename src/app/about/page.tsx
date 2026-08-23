@@ -181,7 +181,7 @@ export default async function AboutPage() {
                 Have questions about our platform, a specific artwork, or how to join as an artisan? We&apos;d love to hear from you.
               </p>
               <div className="space-y-2 text-muted-foreground">
-                <p><strong>Email:</strong> support@kalaconnect.me</p>
+                <p><strong>Email:</strong> dhruvsoran@gmail.com</p>
                 <p><strong>Phone:</strong> +91 7818093944</p>
                 <p><strong>Address:</strong> Meerut, Uttar Pradesh, India</p>
               </div>
