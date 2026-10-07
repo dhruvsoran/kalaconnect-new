@@ -12,6 +12,7 @@ A production-ready AI-powered digital marketplace connecting Indian artisans dir
 - Rate and review purchases
 - Wishlist and cart management
 - AI-powered art recommendations
+- Buyers can share, like, comment 
 
 ### For Artisans
 - Free marketplace to sell artwork online
