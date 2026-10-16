@@ -48,6 +48,9 @@ function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
+  const [showRoleSelection, setShowRoleSelection] = useState(false;
+  const [selectedRole, setSelectedRole] = useState<'buyer' | 'artisan'>('buyer');
+  const [csrfToken, setCsrfToken] = useState<string>('');
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
@@ -68,29 +71,42 @@ function LoginForm() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Read CSRF token from cookie
+    const csrfCookie = document.cookie.split(';').find(c => c.trim().startsWith('_csrf='));
+    if (csrfCookie) {
+      setCsrfToken(csrfCookie.split('=')[1].trim());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('google-login') === 'success') {
-      const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_info='));
-      if (userInfoCookie) {
-        try {
-          const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=').slice(1).join('=')));
-          localStorage.setItem('token', userInfo.token || '');
+      // Try to get token from httpOnly auth_token cookie via fetch to /api/auth/me
+      // Since auth_token is httpOnly, we need to fetch the me endpoint
+      fetch('/api/auth/me', {
+        credentials: 'include', // send httpOnly cookies
+      }).then(async (res) => {
+        const json = await res.json();
+        if (json.user) {
+          localStorage.setItem('token', json.token || ''); // token from me endpoint
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userId', userInfo.id);
-          localStorage.setItem('userEmail', userInfo.email);
-          localStorage.setItem('userName', userInfo.name);
-          localStorage.setItem('userRole', userInfo.role);
+          localStorage.setItem('userId', json.user.id);
+          localStorage.setItem('userEmail', json.user.email);
+          localStorage.setItem('userName', json.user.name || '');
+          localStorage.setItem('userRole', json.user.role);
           window.dispatchEvent(new Event('auth-change'));
 
           toast({
             title: 'Welcome!',
             description: 'You have successfully signed in with Google.',
           });
-          router.push(userInfo.role === 'admin' ? '/admin' : '/dashboard');
-        } catch (e) {
-          console.error('Failed to parse user info cookie');
+          router.push(json.user.role === 'admin' ? '/admin' : '/dashboard');
         }
-      }
+      }).catch((e) => {
+        console.error('Failed to fetch user info after Google login', e);
+      });
     }
   }, [router, toast]);
 
@@ -100,7 +116,10 @@ function LoginForm() {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
         body: JSON.stringify({ email, password }),
       });
       const json = await res.json();
@@ -118,6 +137,12 @@ function LoginForm() {
       }
 
       if (json.error) throw new Error(json.error);
+
+      if (json.requiresRoleSelection) {
+        setShowRoleSelection(true);
+        setIsLoading(false);
+        return;
+      }
 
       if (typeof window !== 'undefined' && json.token) {
         localStorage.setItem('token', json.token);
@@ -271,6 +296,95 @@ function LoginForm() {
             </motion.div>
           </form>
         </div>
+        {showRoleSelection && json?.user && (
+          <p className="text-xs text-muted-foreground mb-4">
+            Current role: <strong className="font-medium">{json.user.role}</strong>
+          </p>
+        )}
+        {showRoleSelection && (
+          <div className="mt-4 p-4 rounded-lg border border-primary/20">
+            <h3 className="font-headline text-primary mb-4">Select Your Role</h3>
+            <p className="text-muted-foreground mb-4">
+              Please select your account type to continue.
+            </p>
+            <div className="grid gap-3 mb-4">
+              <label
+                className="flex items-center gap-2 cursor-pointer select-none"
+                onClick={() => setSelectedRole('buyer')}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="buyer"
+                  checked={selectedRole === 'buyer'}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span>Buyer</span>
+              </label>
+              <label
+                className="flex items-center gap-2 cursor-pointer select-none"
+                onClick={() => setSelectedRole('artisan')}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="artisan"
+                  checked={selectedRole === 'artisan'}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span>Artisan</span>
+              </label>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRoleSelection(false);
+                  toast({
+                    title: 'Cancelled',
+                    description: 'Login cancelled.',
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  // Update user role in DB and login
+                  fetch('/api/auth/select-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: json.user.id, role: selectedRole }),
+                  }).then(async (res) => {
+                    const result = await res.json();
+                    if (result.success) {
+                      localStorage.setItem('token', json.token);
+                      localStorage.setItem('isLoggedIn', 'true');
+                      localStorage.setItem('userRole', selectedRole);
+                      localStorage.setItem('userId', json.user.id);
+                      window.dispatchEvent(new Event('auth-change'));
+                      toast({
+                        title: 'Role selected!',
+                        description: 'Your role has been updated.',
+                      });
+                      router.push(selectedRole === 'admin' ? '/admin' : '/dashboard');
+                    } else {
+                      toast({
+                        variant: 'destructive',
+                        title: 'Error',
+                        description: result.error || 'Failed to update role.',
+                      });
+                    }
+                  });
+                  setShowRoleSelection(false);
+                }}
+              >
+                Continue as {selectedRole}
+              </Button>
+            </div>
+          )}
+        )}
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="underline">

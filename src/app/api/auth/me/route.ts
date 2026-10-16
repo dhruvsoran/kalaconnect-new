@@ -26,6 +26,21 @@ async function handleToken(req: Request, token: string) {
   const user = await users.findOne({ email: payload.email });
   if (!user) return NextResponse.json({ user: null });
 
+  // Token rotation check: verify JWT jti matches user's stored tokenId
+  // If user has no tokenId (existing users), allow login and set new tokenId
+  if (user.tokenId && payload.jti !== user.tokenId) {
+    // Token is stale - user has been issued a new token (e.g., after login from another device)
+    return NextResponse.json({ user: null });
+  }
+
+  // Set new tokenId for existing users who don't have one
+  if (!user.tokenId) {
+    await db.collection('users').updateOne(
+      { _id: user._id },
+      { $set: { tokenId: payload.jti } }
+    );
+  }
+
   return NextResponse.json({
     user: {
       id: user._id.toString(),

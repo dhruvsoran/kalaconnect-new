@@ -92,8 +92,9 @@ async function handleGetOrders(col: any, requester: any) {
           try {
             const product = await products.findOne({ _id: new ObjectId(item.productId) });
             if (product) {
-              item.artisanId = product.artisanId || '';
+              if (!item.artisanId) item.artisanId = product.artisanId || '';
               if (!item.artisanName) item.artisanName = product.artisanName || 'Unknown Artisan';
+              if (!item.image) item.image = product.image || '';
               changed = true;
             }
           } catch { /* invalid productId */ }

@@ -12,9 +12,28 @@ function isAllowedOrigin(origin: string | null): boolean {
   return allowedOrigins.some(allowed => origin === allowed || origin.endsWith(`.${new URL(allowed).hostname}`));
 }
 
+function generateCsrfToken(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const origin = request.headers.get('origin');
+  const pathname = request.nextUrl.pathname;
+
+  // Set CSRF token cookie for login and register pages
+  if (pathname === '/login' || pathname === '/register') {
+    if (request.method === 'GET') {
+      const csrfToken = generateCsrfToken();
+      response.cookies.set('_csrf', csrfToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/',
+      });
+    }
+  }
 
   if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
     if (origin && !isAllowedOrigin(origin)) {
@@ -30,5 +49,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: ['/login', '/register', '/api/:path*'],
 };

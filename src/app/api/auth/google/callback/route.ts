@@ -118,11 +118,12 @@ export async function GET(req: Request) {
       );
       user = await users.findOne({ _id: user._id });
     } else {
+      const existingRole = user?.role;
       const newUser = {
         email: normalizedEmail,
         password: '',
         name: googleUser.name,
-        role: 'buyer' as const,
+        role: existingRole || 'buyer',
         avatar: googleUser.picture,
         emailVerified: true,
         authProvider: 'google',
@@ -166,7 +167,8 @@ export async function GET(req: Request) {
       path: '/',
     });
 
-    // Set user info in a separate non-httpOnly cookie for client-side reading
+    // Set user info in httpOnly cookie (token inaccessible to JS, XSS-safe)
+    // Client should read user data from /api/auth/me using the auth_token
     response.cookies.set('user_info', JSON.stringify({
       id: userId,
       email: user.email,
@@ -174,6 +176,7 @@ export async function GET(req: Request) {
       role: user.role || 'buyer',
       token: jwtToken,
     }), {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60,

@@ -47,6 +47,7 @@ export async function GET(req: Request) {
           role,
           token: jwtToken,
         }), {
+          httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: 7 * 24 * 60 * 60,

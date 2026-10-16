@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '@/lib/mongodb';
 import { verifyPassword } from '@/lib/password';
 import { signToken } from '@/lib/jwt';
@@ -12,7 +13,19 @@ async function logAuth(level: string, message: string, details: string, extra?: 
   } catch (e) { /* silent */ }
 }
 
+function generateTokenId(): string {
+  return uuidv4();
+}
+
 export async function POST(req: Request) {
+  const origin = req.headers.get('origin') || req.headers.get('referer') || '';
+  const csrfToken = req.headers.get('x-csrf-token') || '';
+
+  // Verify CSRF token for form submissions
+  if (origin && !csrfToken) {
+    return NextResponse.json({ error: 'CSRF token missing' }, { status: 400 });
+  }
+
   const { email, password } = await req.json();
   if (!email || !password) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
 
@@ -52,12 +65,31 @@ export async function POST(req: Request) {
     );
   }
 
-  const userId = user.id || user._id?.toString?.();
-  const token = signToken({ sub: userId, email: user.email });
+  // Token rotation: generate new token ID, revoke previous tokens
+  const tokenId = generateTokenId();
+  await users.updateOne(
+    { _id: user._id },
+    { $set: { tokenId } }
+  );
 
-  logAuth('success', 'User logged in', `Email: ${email}, Role: ${user.role || 'buyer'}`, {
-    userId, userEmail: email, userRole: user.role || 'buyer',
+  const userId = user.id || user._id?.toString?.();
+  const token = signToken({ sub: userId, email: user.email, jti: tokenId });
+
+  const userRole = user.role || 'buyer';
+  const requiresRoleSelection = user.authProvider === 'google' && userRole === 'buyer';
+
+  logAuth('success', 'User logged in', `Email: ${email}, Role: ${userRole}`, {
+    userId, userEmail: email, userRole,
   });
 
-  return NextResponse.json({ token, user: { id: userId, email: user.email, name: user.name || null, role: user.role || 'buyer', emailVerified: user.emailVerified !== false } });
+  const baseResponse = {
+    token,
+    user: { id: userId, email: user.email, name: user.name || null, role: userRole, emailVerified: user.emailVerified !== false },
+  };
+
+  if (requiresRoleSelection) {
+    return NextResponse.json({ ...baseResponse, requiresRoleSelection: true });
+  }
+
+  return NextResponse.json(baseResponse);
 }
