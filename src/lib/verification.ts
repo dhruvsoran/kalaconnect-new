@@ -133,7 +133,6 @@ export async function sendVerificationEmail(email: string, token: string, name?:
     return false;
   }
 }
-}
 
 export async function cleanupExpiredTokens(): Promise<number> {
   const db = await getDb();

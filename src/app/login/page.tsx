@@ -48,7 +48,7 @@ function LoginForm() {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
-  const [showRoleSelection, setShowRoleSelection] = useState(false;
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'buyer' | 'artisan'>('buyer');
   const [csrfToken, setCsrfToken] = useState<string>('');
 
