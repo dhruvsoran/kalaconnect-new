@@ -153,8 +153,9 @@ export async function GET(req: Request) {
     const jwtToken = signToken({ sub: userId, email: user.email });
 
     const role = user.role || 'buyer';
-    const destination = role === 'admin' ? '/admin' : role === 'artisan' ? '/dashboard' : '/explore';
-    const redirectUrl = new URL(destination, req.url);
+    // Redirect to login page with google-login=success parameter
+    // The login page useEffect will detect this and show user info + role selection
+    const redirectUrl = new URL('/login?google-login=success', req.url);
 
     const response = NextResponse.redirect(redirectUrl);
     
