@@ -49,8 +49,9 @@ function LoginForm() {
   const [verifyEmail, setVerifyEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'buyer' | 'artisan'>('buyer');
+  const [selectedRole, setSelectedRole] = useState<'buyer' | 'artisan' | 'admin'>('buyer');
   const [csrfToken, setCsrfToken] = useState<string>('');
+  const [loginData, setLoginData] = useState<any>(null);
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
@@ -89,20 +90,20 @@ function LoginForm() {
         credentials: 'include', // send httpOnly cookies
       }).then(async (res) => {
         const json = await res.json();
-        if (json.user) {
-          localStorage.setItem('token', json.token || ''); // token from me endpoint
+        if (loginData.user) {
+          localStorage.setItem('token', loginData.token || ''); // token from me endpoint
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userId', json.user.id);
-          localStorage.setItem('userEmail', json.user.email);
-          localStorage.setItem('userName', json.user.name || '');
-          localStorage.setItem('userRole', json.user.role);
+          localStorage.setItem('userId', loginData.user.id);
+          localStorage.setItem('userEmail', loginData.user.email);
+          localStorage.setItem('userName', loginData.user.name || '');
+          localStorage.setItem('userRole', loginData.user.role);
           window.dispatchEvent(new Event('auth-change'));
 
           toast({
             title: 'Welcome!',
             description: 'You have successfully signed in with Google.',
           });
-          router.push(json.user.role === 'admin' ? '/admin' : '/dashboard');
+          router.push(loginData.user.role === 'admin' ? '/admin' : '/dashboard');
         }
       }).catch((e) => {
         console.error('Failed to fetch user info after Google login', e);
@@ -124,9 +125,9 @@ function LoginForm() {
       });
       const json = await res.json();
 
-      if (json.needsVerification) {
+      if (loginData.needsVerification) {
         setNeedsVerification(true);
-        setVerifyEmail(json.email || email);
+        setVerifyEmail(loginData.email || email);
         toast({
           variant: 'destructive',
           title: 'Email not verified',
@@ -136,26 +137,27 @@ function LoginForm() {
         return;
       }
 
-      if (json.error) throw new Error(json.error);
+      if (loginData.error) throw new Error(loginData.error);
 
-      if (json.requiresRoleSelection) {
+      if (loginData.requiresRoleSelection) {
         setShowRoleSelection(true);
+        setLoginData(json);
         setIsLoading(false);
         return;
       }
 
-      if (typeof window !== 'undefined' && json.token) {
-        localStorage.setItem('token', json.token);
+      if (typeof window !== 'undefined' && loginData.token) {
+        localStorage.setItem('token', loginData.token);
         localStorage.setItem('isLoggedIn', 'true');
-        if (json.user?.role) localStorage.setItem('userRole', json.user.role);
-        if (json.user?.id) localStorage.setItem('userId', json.user.id);
+        if (loginData.user?.role) localStorage.setItem('userRole', loginData.user.role);
+        if (loginData.user?.id) localStorage.setItem('userId', loginData.user.id);
         window.dispatchEvent(new Event('auth-change'));
       }
       toast({
         title: 'Welcome back!',
         description: 'You have successfully logged in.',
       });
-      router.push(json.user?.role === 'admin' ? '/admin' : '/dashboard');
+      router.push(loginData.user?.role === 'admin' ? '/admin' : '/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -178,7 +180,7 @@ function LoginForm() {
       const json = await res.json();
       toast({
         title: 'Email sent',
-        description: json.message || json.error || 'Check your inbox.',
+        description: loginData.message || loginData.error || 'Check your inbox.',
       });
     } catch {
       toast({
@@ -296,9 +298,9 @@ function LoginForm() {
             </motion.div>
           </form>
         </div>
-        {showRoleSelection && json?.user && (
+        {showRoleSelection && loginData?.user && (
           <p className="text-xs text-muted-foreground mb-4">
-            Current role: <strong className="font-medium">{json.user.role}</strong>
+            Current role: <strong className="font-medium">{loginData.user.role}</strong>
           </p>
         )}
         {showRoleSelection && (
@@ -313,7 +315,7 @@ function LoginForm() {
                 onClick={() => setSelectedRole('buyer')}
               >
                 <input
-                  type="radio"
+                  type="radio" readOnly
                   name="role"
                   value="buyer"
                   checked={selectedRole === 'buyer'}
@@ -326,7 +328,7 @@ function LoginForm() {
                 onClick={() => setSelectedRole('artisan')}
               >
                 <input
-                  type="radio"
+                  type="radio" readOnly
                   name="role"
                   value="artisan"
                   checked={selectedRole === 'artisan'}
@@ -349,20 +351,20 @@ function LoginForm() {
                 Cancel
               </Button>
               <Button
-                variant="primary"
+                
                 onClick={() => {
                   // Update user role in DB and login
                   fetch('/api/auth/select-role', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: json.user.id, role: selectedRole }),
+                    body: JSON.stringify({ userId: loginData.user.id, role: selectedRole }),
                   }).then(async (res) => {
                     const result = await res.json();
                     if (result.success) {
-                      localStorage.setItem('token', json.token);
+                      localStorage.setItem('token', loginData.token);
                       localStorage.setItem('isLoggedIn', 'true');
                       localStorage.setItem('userRole', selectedRole);
-                      localStorage.setItem('userId', json.user.id);
+                      localStorage.setItem('userId', loginData.user.id);
                       window.dispatchEvent(new Event('auth-change'));
                       toast({
                         title: 'Role selected!',
@@ -383,7 +385,7 @@ function LoginForm() {
                 Continue as {selectedRole}
               </Button>
             </div>
-          )}
+          </div>
         )}
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}

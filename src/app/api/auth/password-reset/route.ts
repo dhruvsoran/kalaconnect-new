@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyPasswordResetToken } from '@/lib/password-reset';
-import { hashPassword } from '@/lib/password';
+import { hashPassword, validatePassword } from '@/lib/password';
 import { getDb } from '@/lib/mongodb';
 
 export async function GET(req: Request) {
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     success: true, 
     userId: result.userId,
     email: result.email,
-    token: result.token,
+    token: token || "",
   });
 }
 

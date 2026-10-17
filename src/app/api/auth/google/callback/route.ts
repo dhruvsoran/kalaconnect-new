@@ -103,7 +103,7 @@ export async function GET(req: Request) {
     const users = db.collection('users');
 
     const normalizedEmail = googleUser.email.toLowerCase();
-    let user = await users.findOne({ email: normalizedEmail });
+    let user: any = await users.findOne({ email: normalizedEmail });
 
     if (user) {
       await users.updateOne(
@@ -118,7 +118,7 @@ export async function GET(req: Request) {
       );
       user = await users.findOne({ _id: user._id });
     } else {
-      const existingRole = user?.role;
+      const existingRole = user ? user.role : 'buyer';
       const newUser = {
         email: normalizedEmail,
         password: '',

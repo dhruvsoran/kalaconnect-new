@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createPasswordResetToken, sendVerificationEmail } from '@/lib/verification';
+import { createPasswordResetToken } from '@/lib/password-reset'; import { sendVerificationEmail } from '@/lib/verification';
 import { getDb } from '@/lib/mongodb';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/validation';

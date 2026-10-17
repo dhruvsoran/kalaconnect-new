@@ -1,5 +1,11 @@
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+
+export const config = {
+  runtime: 'nodejs',
+  matcher: ['/login', '/register', '/api/:path*'],
+};
 
 const allowedOrigins = [
   'https://www.kalaconnect.me',
@@ -47,7 +53,3 @@ export function middleware(request: NextRequest) {
 
   return response;
 }
-
-export const config = {
-  matcher: ['/login', '/register', '/api/:path*'],
-};
