@@ -52,15 +52,15 @@ export async function POST(req: Request) {
   const users = db.collection('users');
   const existing = await users.findOne({ email: sanitizedEmail });
   
-  // Generic response to prevent user enumeration
-  const genericResponse = NextResponse.json({
-    message: 'If the email is available, a verification link has been sent to your inbox.',
-    needsVerification: true,
-  });
-
   if (existing) {
     logAuth('warn', 'Registration attempt with existing email', `Email: ${sanitizedEmail}`);
-    return genericResponse;
+    return NextResponse.json(
+      {
+        error: 'This email is already registered. Please log in or reset your password.',
+        alreadyRegistered: true,
+      },
+      { status: 409 }
+    );
   }
 
   const allowedRoles = ['buyer', 'artisan'];
@@ -81,7 +81,13 @@ export async function POST(req: Request) {
     // Handle duplicate key error (race condition protection)
     if (e?.code === 11000) {
       logAuth('warn', 'Duplicate email registration blocked (unique index)', `Email: ${sanitizedEmail}`);
-      return genericResponse;
+      return NextResponse.json(
+        {
+          error: 'This email is already registered. Please log in or reset your password.',
+          alreadyRegistered: true,
+        },
+        { status: 409 }
+      );
     }
     throw e;
   }

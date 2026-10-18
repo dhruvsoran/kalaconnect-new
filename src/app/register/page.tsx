@@ -67,6 +67,15 @@ function RegisterForm() {
         body: JSON.stringify({ email, password, name: fullName, role }),
       });
       const json = await res.json();
+      if (json.alreadyRegistered) {
+        toast({
+          variant: 'destructive',
+          title: 'Email already registered',
+          description: 'This email already has an account. Please log in instead — you can switch between buyer and artisan from your dashboard.',
+        });
+        router.push(`/login?email=${encodeURIComponent(email)}`);
+        return;
+      }
       if (json.error) throw new Error(json.error);
 
       if (json.token) {

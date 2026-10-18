@@ -216,18 +216,24 @@ export async function getAllOrders(): Promise<Order[]> {
 }
 
 export async function getPlatformStats(): Promise<{ productCount: number; artisanCount: number; buyerCount: number; orderCount: number }> {
-  const db = await getDb();
-  const productsCol = db.collection('products');
-  const usersCol = db.collection('users');
-  const ordersCol = db.collection('orders');
+  try {
+    const db = await getDb();
+    const productsCol = db.collection('products');
+    const usersCol = db.collection('users');
+    const ordersCol = db.collection('orders');
 
-  const [productCount, artisanCount, buyerCount, orderCount] = await Promise.all([
-    productsCol.countDocuments({ status: 'Active' }),
-    usersCol.countDocuments({ role: 'artisan' }),
-    usersCol.countDocuments({ role: 'buyer' }),
-    ordersCol.countDocuments(),
-  ]);
+    const [productCount, artisanCount, buyerCount, orderCount] = await Promise.all([
+      productsCol.countDocuments({ status: 'Active' }),
+      usersCol.countDocuments({ role: 'artisan' }),
+      usersCol.countDocuments({ role: 'buyer' }),
+      ordersCol.countDocuments(),
+    ]);
 
-  return { productCount, artisanCount, buyerCount, orderCount };
+    return { productCount, artisanCount, buyerCount, orderCount };
+  } catch (e) {
+    // Degrade gracefully (build prerendering without DB, transient outages)
+    console.error('getPlatformStats failed:', (e as Error).message);
+    return { productCount: 0, artisanCount: 0, buyerCount: 0, orderCount: 0 };
+  }
 }
 

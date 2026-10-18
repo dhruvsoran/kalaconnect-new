@@ -54,6 +54,13 @@ function LoginForm() {
   const [loginData, setLoginData] = useState<any>(null);
 
   useEffect(() => {
+    const prefillEmail = searchParams.get('email');
+    if (prefillEmail) {
+      setEmail(prefillEmail);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       toast({
         title: 'Email verified!',
@@ -280,9 +287,15 @@ function LoginForm() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
               <Input
                 id="password"
                 type="password"

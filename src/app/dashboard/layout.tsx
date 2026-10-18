@@ -4,16 +4,19 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, ShoppingCart, CreditCard, BarChart3, MessageSquare, Megaphone, Settings, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, CreditCard, BarChart3, MessageSquare, Megaphone, Settings, Menu, X, User, ArrowLeftRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/auth';
+import { useToast } from '@/hooks/use-toast';
 import { BrandLoading } from '@/components/brand-loading';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useUser();
+  const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -54,6 +57,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   const links = isAdmin ? adminLinks : isArtisan ? artisanLinks : buyerLinks;
+
+  const handleSwitchRole = async () => {
+    const newRole = isArtisan ? 'buyer' : 'artisan';
+    setIsSwitching(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login?returnTo=/dashboard');
+        return;
+      }
+      const res = await fetch('/api/auth/role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ role: newRole }),
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      localStorage.setItem('userRole', json.role);
+      window.dispatchEvent(new Event('auth-change'));
+      toast({
+        title: 'Account switched',
+        description: `You are now using your ${newRole} account.`,
+      });
+      setSidebarOpen(false);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Switch failed',
+        description: error.message || 'Could not switch account type.',
+      });
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -101,7 +138,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               );
             })}
           </nav>
-          <div className="p-4 border-t">
+          <div className="p-4 border-t space-y-2">
+            {!isAdmin && (
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleSwitchRole}
+                disabled={isSwitching}
+              >
+                <ArrowLeftRight className="h-4 w-4 mr-2" />
+                Switch to {isArtisan ? 'Buyer' : 'Artisan'} Account
+              </Button>
+            )}
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/">← Back to Home</Link>
             </Button>
