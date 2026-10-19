@@ -62,46 +62,52 @@ export function WelcomeCurtain() {
       aria-hidden="false"
       onClick={skip}
     >
-      {/* Left curtain */}
+      {/* Left curtain — purple → pink → saffron */}
       <motion.div
-        className="absolute inset-y-0 left-0 w-1/2 overflow-hidden"
+        className="absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-[#1b0a33]"
         initial={{ x: 0 }}
         animate={{ x: opening ? '-100%' : 0 }}
         transition={{ duration: CURTAIN_EXIT_MS / 1000, ease: [0.76, 0, 0.24, 1] }}
         style={{ willChange: 'transform' }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(120deg, #4a1d96 0%, #7e22ce 30%, #db2777 68%, #f97316 100%)' }}
+        />
         {/* soft sheen + curtain folds */}
         <div
-          className="absolute inset-0 opacity-25"
+          className="absolute inset-0 opacity-20"
           style={{
             background:
-              'repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 2px, transparent 26px)',
+              'repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 2px, transparent 26px)',
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_30%_40%, rgba(255,255,255,0.12), transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_30%_35%, rgba(255,220,150,0.25), transparent_55%)]" />
         {/* golden leading edge */}
-        <div className="absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-amber-200/80 via-amber-100/90 to-amber-200/80" />
+        <div className="absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-amber-200 via-amber-100 to-amber-300" />
       </motion.div>
 
-      {/* Right curtain */}
+      {/* Right curtain — saffron → pink → purple (mirrored) */}
       <motion.div
-        className="absolute inset-y-0 right-0 w-1/2 overflow-hidden"
+        className="absolute inset-y-0 right-0 w-1/2 overflow-hidden bg-[#1b0a33]"
         initial={{ x: 0 }}
         animate={{ x: opening ? '100%' : 0 }}
         transition={{ duration: CURTAIN_EXIT_MS / 1000, ease: [0.76, 0, 0.24, 1] }}
         style={{ willChange: 'transform' }}
       >
-        <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary to-primary/80" />
         <div
-          className="absolute inset-0 opacity-25"
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(240deg, #4a1d96 0%, #7e22ce 30%, #db2777 68%, #f97316 100%)' }}
+        />
+        <div
+          className="absolute inset-0 opacity-20"
           style={{
             background:
-              'repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 2px, transparent 2px, transparent 26px)',
+              'repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 2px, transparent 2px, transparent 26px)',
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_70%_40%, rgba(255,255,255,0.12), transparent_60%)]" />
-        <div className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-amber-200/80 via-amber-100/90 to-amber-200/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_70%_35%, rgba(255,220,150,0.25), transparent_55%)]" />
+        <div className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-amber-200 via-amber-100 to-amber-300" />
       </motion.div>
 
       {/* Center branding */}
