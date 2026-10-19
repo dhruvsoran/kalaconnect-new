@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
+import { verifyToken, signToken } from '@/lib/jwt';
 import { getDb } from '@/lib/mongodb';
 
 export async function GET(req: Request) {
   const auth = req.headers.get('authorization') || '';
-  const token = auth?.replace('Bearer ', '') || null;
+  const token = auth?.startsWith('Bearer ') ? auth.replace('Bearer ', '') : null;
   if (!token) {
     const cookieToken = req.headers.get('cookie')
       ?.split(';')
       .find(c => c.trim().startsWith('auth_token='))
       ?.split('=')[1];
     if (!cookieToken) return NextResponse.json({ user: null });
-    return handleToken(req, cookieToken);
+    return handleToken(req, cookieToken, true);
   }
-  return handleToken(req, token);
+  return handleToken(req, token, false);
 }
 
-async function handleToken(req: Request, token: string) {
+async function handleToken(req: Request, token: string, issueFreshToken: boolean) {
 
   const payload = verifyToken(token);
   if (!payload || !payload.email) return NextResponse.json({ user: null });
@@ -26,22 +26,12 @@ async function handleToken(req: Request, token: string) {
   const user = await users.findOne({ email: payload.email });
   if (!user) return NextResponse.json({ user: null });
 
-  // Token rotation check: verify JWT jti matches user's stored tokenId
-  // If user has no tokenId (existing users), allow login and set new tokenId
-  if (user.tokenId && payload.jti !== user.tokenId) {
-    // Token is stale - user has been issued a new token (e.g., after login from another device)
-    return NextResponse.json({ user: null });
+  // Clean up legacy token-rotation field (kept as a no-op for existing docs)
+  if (user.tokenId) {
+    await users.updateOne({ _id: user._id }, { $unset: { tokenId: '' } });
   }
 
-  // Set new tokenId for existing users who don't have one
-  if (!user.tokenId) {
-    await db.collection('users').updateOne(
-      { _id: user._id },
-      { $set: { tokenId: payload.jti } }
-    );
-  }
-
-  return NextResponse.json({
+  const response: Record<string, any> = {
     user: {
       id: user._id.toString(),
       email: user.email,
@@ -56,5 +46,13 @@ async function handleToken(req: Request, token: string) {
       address: user.address || null,
       hasPassword: !!(user.password && user.password !== ''),
     },
-  });
+  };
+
+  // Cookie-authenticated (Google OAuth) clients get a fresh bearer token
+  // so they can also use Authorization-based endpoints (e.g. role switch)
+  if (issueFreshToken) {
+    response.token = signToken({ sub: user._id.toString(), email: user.email });
+  }
+
+  return NextResponse.json(response);
 }

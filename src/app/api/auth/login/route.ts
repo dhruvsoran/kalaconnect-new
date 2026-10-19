@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '@/lib/mongodb';
 import { verifyPassword } from '@/lib/password';
 import { signToken } from '@/lib/jwt';
@@ -11,10 +10,6 @@ async function logAuth(level: string, message: string, details: string, extra?: 
     const db = await getDb();
     await db.collection('systemLogs').insertOne({ level, category: 'auth', message, details, ...extra, createdAt: new Date() });
   } catch (e) { /* silent */ }
-}
-
-function generateTokenId(): string {
-  return uuidv4();
 }
 
 export async function POST(req: Request) {
@@ -65,31 +60,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // Token rotation: generate new token ID, revoke previous tokens
-  const tokenId = generateTokenId();
-  await users.updateOne(
-    { _id: user._id },
-    { $set: { tokenId } }
-  );
-
+  // Token rotation removed: stateless JWTs with expiry; supports multiple
+  // devices and Google/email sessions without invalidating each other
   const userId = user.id || user._id?.toString?.();
-  const token = signToken({ sub: userId, email: user.email, jti: tokenId });
+  const token = signToken({ sub: userId, email: user.email });
 
   const userRole = user.role || 'buyer';
-  const requiresRoleSelection = user.authProvider === 'google' && userRole === 'buyer';
 
   logAuth('success', 'User logged in', `Email: ${email}, Role: ${userRole}`, {
     userId, userEmail: email, userRole,
   });
 
-  const baseResponse = {
+  return NextResponse.json({
     token,
     user: { id: userId, email: user.email, name: user.name || null, role: userRole, emailVerified: user.emailVerified !== false },
-  };
-
-  if (requiresRoleSelection) {
-    return NextResponse.json({ ...baseResponse, requiresRoleSelection: true });
-  }
-
-  return NextResponse.json(baseResponse);
+  });
 }

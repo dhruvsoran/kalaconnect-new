@@ -1,9 +1,7 @@
-import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export const config = {
-  runtime: 'nodejs',
   matcher: ['/login', '/register', '/api/:path*'],
 };
 
@@ -18,8 +16,11 @@ function isAllowedOrigin(origin: string | null): boolean {
   return allowedOrigins.some(allowed => origin === allowed || origin.endsWith(`.${new URL(allowed).hostname}`));
 }
 
+// Web Crypto API — works in both edge and node runtimes
 function generateCsrfToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export function middleware(request: NextRequest) {
