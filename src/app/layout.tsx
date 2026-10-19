@@ -2,6 +2,7 @@ import { PT_Sans, Playfair_Display } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { WelcomeCurtain } from '@/components/welcome-curtain';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { WebSiteSchema } from '@/components/seo/WebSiteSchema';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
@@ -102,6 +103,7 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body className="font-body antialiased min-h-screen relative">
+        <WelcomeCurtain />
         <OrganizationSchema />
         <WebSiteSchema />
         <LocalBusinessSchema />
