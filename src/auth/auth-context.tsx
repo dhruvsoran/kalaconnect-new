@@ -29,16 +29,19 @@ const loadCurrentUser = async () => {
         credentials: 'include', // send httpOnly auth_token cookie
       });
       const json = await res.json();
-      if (!json.user && token) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        setCurrentUser(null);
-      } else if (json.user) {
+      if (json.user) {
         setCurrentUser(json.user);
+      } else {
+        // No valid session (logged out, expired, or invalid token) — clear everything
+        if (token) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+        }
+        setCurrentUser(null);
       }
     } catch {
       localStorage.removeItem('token');
