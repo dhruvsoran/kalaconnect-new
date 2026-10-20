@@ -2,13 +2,13 @@
 "use client";
 
 import Link from 'next/link';
+import { ProductThumb } from '@/components/product-thumb';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle2, ShoppingCart, ListOrdered, Package, Truck, MapPin, CreditCard } from 'lucide-react';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -102,7 +102,7 @@ export default function OrderConfirmationPage() {
                   <div className="space-y-2">
                     {lastOrder.items?.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 bg-muted/50 rounded-lg p-2">
-                        <Image src={item.image} alt={item.productName} width={40} height={40} className="rounded object-cover" />
+                        <ProductThumb src={item.image} alt={item.productName} width={40} height={40} className="rounded object-cover" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{item.productName}</p>
                           <p className="text-xs text-muted-foreground">by {item.artisanName}</p>

@@ -33,6 +33,7 @@ import { useUser } from '@/auth';
 import { updateOrderStatusAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import ImageNext from 'next/image';
+import { ProductThumb } from '@/components/product-thumb';
 
 type ArtisanProduct = {
   id: string;
@@ -217,7 +218,7 @@ function ArtisanDashboard({ userId }: { userId: string }) {
                   <div key={order.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       {order.items?.slice(0, 2).map((item, i) => (
-                        <ImageNext
+                        <ProductThumb
                           key={i}
                           src={item.image}
                           alt={item.productName}
@@ -530,7 +531,7 @@ function BuyerDashboard({ userId }: { userId: string }) {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                           <div className="flex items-center gap-2">
                             {order.items?.slice(0, 3).map((item, i) => (
-                              <ImageNext key={i} src={item.image} alt={item.productName} width={48} height={48} className="rounded object-cover" />
+                              <ProductThumb key={i} src={item.image} alt={item.productName} width={48} height={48} className="rounded object-cover" />
                             ))}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -612,7 +613,7 @@ function BuyerDashboard({ userId }: { userId: string }) {
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-2">
                           {order.items?.slice(0, 3).map((item, i) => (
-                            <ImageNext key={i} src={item.image} alt={item.productName} width={48} height={48} className="rounded object-cover" />
+                            <ProductThumb key={i} src={item.image} alt={item.productName} width={48} height={48} className="rounded object-cover" />
                           ))}
                         </div>
                         <div className="flex-1 min-w-0">

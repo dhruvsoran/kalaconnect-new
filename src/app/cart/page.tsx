@@ -1,9 +1,9 @@
 
 "use client";
 
+import { ProductThumb } from '@/components/product-thumb';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FadeIn } from '@/components/motion-wrapper';
 import { Button } from '@/components/ui/button';
@@ -142,7 +142,7 @@ export default function CartPage() {
                                             transition={{ delay: index * 0.1 }}
                                         >
                                             <TableCell>
-                                                <Image src={item.image} alt={item.name} width={100} height={100} className="rounded-md object-cover" />
+                                                <ProductThumb src={item.image} alt={item.name} width={100} height={100} className="rounded-md object-cover" />
                                             </TableCell>
                                             <TableCell className="font-medium">{item.name}</TableCell>
                                             <TableCell>{item.price}</TableCell>
@@ -193,7 +193,7 @@ export default function CartPage() {
                             <div className="sm:hidden space-y-3">
                                 {cart.map((item) => (
                                     <div key={item.name} className="flex items-center gap-3 rounded-lg border bg-card p-3">
-                                        <Image src={item.image} alt={item.name} width={64} height={64} className="h-16 w-16 shrink-0 rounded-md object-cover" />
+                                        <ProductThumb src={item.image} alt={item.name} width={64} height={64} className="h-16 w-16 shrink-0 rounded-md object-cover" />
                                         <div className="min-w-0 flex-1">
                                             <p className="line-clamp-2 text-sm font-medium">{item.name}</p>
                                             <p className="mt-1 text-sm text-muted-foreground">₹{item.price}</p>

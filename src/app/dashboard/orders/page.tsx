@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ListOrdered, Package, Truck, CheckCircle, Clock, XCircle, Loader2, Eye, XCircleIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import Image from 'next/image';
 import { useUser } from '@/auth';
+import { ProductThumb } from '@/components/product-thumb';
 
 type OrderItem = {
   productName: string;
@@ -133,7 +133,7 @@ export default function OrdersPage() {
                   <div className="flex space-x-4 overflow-x-auto pb-2">
                     {order.items?.map((item, i) => (
                       <div key={i} className="flex flex-col items-center gap-2 flex-shrink-0">
-                        <img src={item.image || '/placeholder.svg'} alt={item.productName} className="h-16 w-16 rounded-md object-cover" />
+                        <ProductThumb src={item.image} alt={item.productName} width={64} height={64} className="h-16 w-16 rounded-md object-cover" />
                         <span className="text-xs text-center w-20 truncate">{item.productName}</span>
                       </div>
                     ))}
@@ -247,7 +247,7 @@ export default function OrdersPage() {
               <div className="space-y-2">
                 {selectedOrder.items?.map((item, i) => (
                   <div key={i} className="flex items-center gap-3 bg-muted/50 rounded-lg p-2">
-                    <Image src={item.image} alt={item.productName} width={40} height={40} className="rounded object-cover" />
+                    <ProductThumb src={item.image} alt={item.productName} width={40} height={40} className="rounded object-cover" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.productName}</p>
                       <p className="text-xs text-muted-foreground">by {item.artisanName}</p>
