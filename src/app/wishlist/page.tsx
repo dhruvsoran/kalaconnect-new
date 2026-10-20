@@ -52,21 +52,25 @@ export default function WishlistPage() {
     };
     
     const handleAddToCart = async (product: Product) => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const res = await fetch('/api/db/carts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-            body: JSON.stringify({ action: 'add', product }),
-        });
-        const json = await res.json();
-        if (json.error) {
-            toast({ variant: 'destructive', title: 'Failed to add to cart' });
-            return;
+        try {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+            const res = await fetch('/api/db/carts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                body: JSON.stringify({ action: 'add', product }),
+            });
+            const json = await res.json();
+            if (json.error) {
+                toast({ variant: 'destructive', title: 'Failed to add to cart' });
+                return;
+            }
+            window.dispatchEvent(new Event('cartUpdated'));
+            toast({ title: 'Added to Cart!', description: `Successfully added ${product.name} to your cart.` });
+            // Remove from wishlist after adding to cart
+            removeFromWishlist(product.name);
+        } catch {
+            toast({ variant: 'destructive', title: 'Failed to add to cart', description: 'Network error. Please try again.' });
         }
-        window.dispatchEvent(new Event('cartUpdated'));
-        toast({ title: 'Added to Cart!', description: `Successfully added ${product.name} to your cart.` });
-        // Remove from wishlist after adding to cart
-        removeFromWishlist(product.name);
     };
 
     if (isLoading) {

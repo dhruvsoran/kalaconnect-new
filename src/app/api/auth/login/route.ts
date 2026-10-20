@@ -46,7 +46,21 @@ export async function POST(req: Request) {
   const users = db.collection('users');
   const user = await users.findOne({ email: email.toLowerCase() });
 
-  if (!user || !verifyPassword(password, user.password)) {
+  if (!user) {
+    logAuth('warn', 'Failed login attempt', `Email: ${email}`);
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  }
+
+  // Google-only accounts have no password — never run bcrypt against undefined
+  if (typeof user.password !== 'string' || !user.password) {
+    logAuth('warn', 'Login attempt on passwordless account', `Email: ${email}`);
+    return NextResponse.json(
+      { error: 'Please sign in with Google, or reset your password to set one.' },
+      { status: 400 }
+    );
+  }
+
+  if (!verifyPassword(password, user.password)) {
     logAuth('warn', 'Failed login attempt', `Email: ${email}`);
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }

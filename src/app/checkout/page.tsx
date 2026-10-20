@@ -93,6 +93,8 @@ export default function CheckoutPage() {
   });
 
   async function onSubmit(values: z.infer<typeof checkoutSchema>) {
+    if (isLoading) return;
+    setIsLoading(true);
     // Create the new order
     const newOrder = {
         orderId: `#KC${Math.floor(Math.random() * 9000) + 1000}`,
@@ -108,7 +110,7 @@ export default function CheckoutPage() {
           artisanName: item.artisanName || 'Unknown Artisan',
           image: item.image,
           price: typeof item.price === 'number' ? item.price : parseFloat(String(item.price).replace(/[^0-9.]+/g, '')) || 0,
-          quantity: 1,
+          quantity: (item as any).quantity || 1,
         })),
     };
 

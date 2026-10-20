@@ -92,6 +92,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     }
   }
 
+  // Per-collection read guards for remaining collections
+  if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (collection === 'contactMessages' && requester.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  if (collection === 'systemLogs' && requester.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  if (collection === 'carts') {
+    if (requester.role !== 'admin' && (item as any).userId !== requester._id?.toString?.()) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
   return NextResponse.json({ data: { id: item._id?.toString?.(), ...item, _id: undefined } });
 }
 
@@ -110,12 +124,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
   if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   if (collection === 'users') {
-    if (requester.role !== 'admin' && requester._id?.toString?.() !== id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // Profile-field allowlist — never password/email/role/verification state
+    const ALLOWED_USER_PROFILE_FIELDS = ['name', 'avatar', 'location', 'story', 'heritage', 'phone', 'address'];
+    const sanitizedUser = sanitizeObject(body, ALLOWED_USER_PROFILE_FIELDS);
+    if (Object.keys(sanitizedUser).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
-    if (requester.role !== 'admin') {
-      delete body.role;
-    }
+    await col.updateOne({ _id: oid }, { $set: { ...sanitizedUser, updatedAt: new Date() } });
+    return NextResponse.json({ ok: true });
   }
 
   if (collection === 'products') {
@@ -133,10 +149,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ collecti
     if (requester.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+    // Admin order edits limited to safe fields
+    const sanitizedOrder = sanitizeObject(body, ['orderId', 'trackingNumber', 'status', 'note']);
+    await col.updateOne({ _id: oid }, { $set: sanitizedOrder });
+    return NextResponse.json({ ok: true });
   }
 
-  await col.updateOne({ _id: oid }, { $set: body });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ error: 'Updates not supported for this collection' }, { status: 403 });
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ collection: string; id: string }> }) {

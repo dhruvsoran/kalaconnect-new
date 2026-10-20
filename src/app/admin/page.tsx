@@ -185,11 +185,15 @@ export default function AdminDashboard() {
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : undefined;
-    const result = await deleteProductAction(productId, token || undefined);
-    if ('success' in result && result.success) {
-      setProducts(products.filter(p => p.id !== productId));
-      toast({ title: 'Product Deleted', description: `"${productName}" has been removed.` });
-    } else {
+    try {
+      const result = await deleteProductAction(productId, token || undefined);
+      if ('success' in result && result.success) {
+        setProducts(products.filter(p => p.id !== productId));
+        toast({ title: 'Product Deleted', description: `"${productName}" has been removed.` });
+      } else {
+        toast({ variant: 'destructive', title: 'Delete Failed', description: ('error' in result && result.error) || 'Could not delete the product.' });
+      }
+    } catch {
       toast({ variant: 'destructive', title: 'Delete Failed', description: 'Could not delete the product.' });
     }
   };
@@ -200,8 +204,6 @@ export default function AdminDashboard() {
       const result = await updateOrderStatusAction(
         orderId,
         newStatus as any,
-        user?.id || '',
-        'admin',
         `Status updated by admin`,
         typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined
       );
@@ -212,8 +214,10 @@ export default function AdminDashboard() {
         }
         toast({ title: 'Order Updated', description: `Order status changed to ${newStatus}.` });
       } else {
-        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update order status.' });
+        toast({ variant: 'destructive', title: 'Update Failed', description: ('error' in result && result.error) || 'Could not update order status.' });
       }
+    } catch {
+      toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update order status.' });
     } finally {
       setUpdatingStatus(false);
     }

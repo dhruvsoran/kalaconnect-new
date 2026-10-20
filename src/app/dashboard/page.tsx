@@ -156,8 +156,6 @@ function ArtisanDashboard({ userId }: { userId: string }) {
       const result = await updateOrderStatusAction(
         orderId,
         newStatus as any,
-        userId,
-        'artisan',
         `Status updated by artisan`,
         typeof window !== 'undefined' ? localStorage.getItem('token') || undefined : undefined
       );
@@ -168,8 +166,10 @@ function ArtisanDashboard({ userId }: { userId: string }) {
         }
         toast({ title: 'Order Updated', description: `Order status changed to ${newStatus}.` });
       } else {
-        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update order status.' });
+        toast({ variant: 'destructive', title: 'Update Failed', description: ('error' in result && result.error) || 'Could not update order status.' });
       }
+    } catch {
+      toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update order status.' });
     } finally {
       setUpdatingStatus(false);
     }
@@ -432,16 +432,22 @@ function BuyerDashboard({ userId }: { userId: string }) {
   };
 
   const addToCart = async (product: BuyerProduct) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const res = await fetch('/api/db/carts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ action: 'add', product }),
-    });
-    const json = await res.json();
-    if (!json.error) {
-      window.dispatchEvent(new Event('cartUpdated'));
-      toast({ title: 'Added to Cart!', description: `${product.name} added to your cart.` });
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch('/api/db/carts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ action: 'add', product }),
+      });
+      const json = await res.json();
+      if (!json.error) {
+        window.dispatchEvent(new Event('cartUpdated'));
+        toast({ title: 'Added to Cart!', description: `${product.name} added to your cart.` });
+      } else {
+        toast({ variant: 'destructive', title: 'Failed to add to cart' });
+      }
+    } catch {
+      toast({ variant: 'destructive', title: 'Failed to add to cart', description: 'Network error. Please try again.' });
     }
   };
 

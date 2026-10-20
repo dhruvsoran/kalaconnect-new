@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { verifyToken } from '@/lib/jwt';
 import { sanitizeInput } from '@/lib/validation';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { ObjectId } from 'mongodb';
 
 const ALLOWED_COLLECTIONS = ['users', 'orders', 'products', 'carts', 'likes', 'comments', 'contactMessages', 'systemLogs'];
@@ -188,7 +189,8 @@ async function handlePostOrders(col: any, requester: any, body: any) {
   if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const now = new Date();
 
-  // Backfill missing artisanId on order items so artisans see their orders
+  // Re-derive prices server-side from the products collection — never trust
+  // client-supplied amounts (artisan revenue & admin dashboards derive from these)
   if (Array.isArray(body.items)) {
     const db = await getDb();
     const products = db.collection('products');
@@ -202,7 +204,24 @@ async function handlePostOrders(col: any, requester: any, body: any) {
           }
         } catch { /* invalid productId, leave as-is */ }
       }
+      if (item.productId) {
+        try {
+          const product = await products.findOne({ _id: new ObjectId(item.productId) });
+          if (product) {
+            item.productName = item.productName || product.name;
+            item.image = item.image || product.image || '';
+            item.artisanId = item.artisanId || product.artisanId || '';
+            item.artisanName = item.artisanName || product.artisanName || 'Unknown Artisan';
+            item.price = typeof product.price === 'number' ? product.price : item.price;
+            item.quantity = Math.max(1, Math.min(99, typeof item.quantity === 'number' ? item.quantity : 1));
+          }
+        } catch { /* invalid productId */ }
+      } else {
+        item.quantity = Math.max(1, Math.min(99, typeof item.quantity === 'number' ? item.quantity : 1));
+      }
     }
+    body.total = body.items.reduce((sum: number, it: any) => sum + (typeof it.price === 'number' ? it.price : 0) * (typeof it.quantity === 'number' ? it.quantity : 1), 0);
+    body.subtotal = body.items.reduce((sum: number, it: any) => sum + (typeof it.price === 'number' ? it.price : 0) * (typeof it.quantity === 'number' ? it.quantity : 1), 0);
   }
 
   const res = await col.insertOne({
@@ -227,7 +246,9 @@ async function handlePostProducts(col: any, requester: any, body: any) {
   const sanitized = sanitizeObject(body, ALLOWED_PRODUCT_FIELDS);
   const res = await col.insertOne({
     ...sanitized, artisanId: requester._id?.toString?.(),
-    status: body.status || 'Draft', createdAt: new Date(),
+    artisanName: requester.name || 'Unknown Artisan',
+    status: ['Active', 'Draft', 'Archived'].includes(body.status) ? body.status : 'Draft',
+    createdAt: new Date(),
   });
   const productId = res.insertedId?.toString?.() || null;
   logToDB('success', 'product', `New product created: ${sanitized.name}`,
@@ -306,15 +327,21 @@ async function handlePostCarts(col: any, requester: any, body: any) {
   return NextResponse.json({ error: 'Invalid cart action' }, { status: 400 });
 }
 
-function handlePostContact(col: any, body: any) {
+function handlePostContact(col: any, body: any, ip: string) {
   if (!body.name || !body.email || !body.subject || !body.message) {
     return NextResponse.json({ error: 'Name, email, subject, and message are required' }, { status: 400 });
   }
-  const sanitized = sanitizeObject(body, ALLOWED_CONTACT_FIELDS);
-  return col.insertOne({
-    name: sanitized.name, email: sanitized.email, phone: sanitized.phone || '',
-    subject: sanitized.subject, message: sanitized.message, read: false, createdAt: new Date(),
-  }).then((res: any) => NextResponse.json({ id: res.insertedId?.toString?.() || null }));
+  return checkRateLimit(`contact:{${ip}}`, 3).then(async (rateLimitResult) => {
+    if (!rateLimitResult.success) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+    const text = sanitizeInput(String(body.message)).slice(0, 4000);
+    const sanitized = sanitizeObject(body, ALLOWED_CONTACT_FIELDS);
+    return col.insertOne({
+      name: sanitized.name, email: sanitized.email, phone: sanitized.phone || '',
+      subject: sanitized.subject, message: text, read: false, createdAt: new Date(),
+    }).then((res: any) => NextResponse.json({ id: res.insertedId?.toString?.() || null }));
+  });
 }
 
 async function handlePostLogs(col: any, requester: any, body: any) {
@@ -352,7 +379,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ collecti
     case 'comments': return handleGetComments(col, url);
     case 'likes': return handleGetLikes(col, requester, url);
     case 'systemLogs': return handleGetLogs(col, requester, url);
-    default: return NextResponse.json({ data: mapItems(await col.find({}).toArray()) });
+    default:
+      // Anything without an explicit read path (e.g. contactMessages) stays private
+      if (!requester || requester.role !== 'admin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      return NextResponse.json({ data: mapItems(await col.find({}).toArray()) });
   }
 }
 
@@ -372,7 +404,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
     case 'likes': return handlePostLikes(col, requester, body);
     case 'comments': return handlePostComments(col, requester, body);
     case 'carts': return handlePostCarts(col, requester, body);
-    case 'contactMessages': return handlePostContact(col, body);
+    case 'contactMessages': {
+      const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+      return handlePostContact(col, body, ip);
+    }
     case 'systemLogs': return handlePostLogs(col, requester, body);
     default: return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
   }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/auth';
 
 interface ProductDetailClientProps {
   product: {
@@ -21,11 +22,11 @@ interface ProductDetailClientProps {
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddToCart = async () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
+    if (!user) {
       toast({
         variant: 'destructive',
         title: 'Authentication Required',
@@ -35,8 +36,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       return;
     }
 
-    const role = localStorage.getItem('userRole');
-    if (role === 'artisan' || role === 'admin') {
+    if (user.role === 'artisan' || user.role === 'admin') {
       toast({
         variant: 'destructive',
         title: 'Not Allowed',
@@ -85,8 +85,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   };
 
   const handleAddToWishlist = () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
+    if (!user) {
       toast({
         variant: 'destructive',
         title: 'Authentication Required',
@@ -96,8 +95,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       return;
     }
 
-    const role = localStorage.getItem('userRole');
-    if (role === 'artisan' || role === 'admin') {
+    if (user.role === 'artisan' || user.role === 'admin') {
       toast({
         variant: 'destructive',
         title: 'Not Allowed',

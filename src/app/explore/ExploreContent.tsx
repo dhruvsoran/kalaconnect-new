@@ -303,78 +303,95 @@ const ProductCard = memo(function ProductCard({ product }: { product: Product })
         await navigator.share({ title: product.name, text: product.description, url: window.location.href });
       } catch (err) { /* user cancelled */ }
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Link copied to clipboard!" });
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({ title: "Link copied to clipboard!" });
+      } catch {
+        toast({ title: "Copy failed", description: window.location.href });
+      }
     }
   };
 
   const handleLike = async () => {
     handleAuthAction(async () => {
-      const token = localStorage.getItem('token');
-      if (!isLiked) {
-        const res = await fetch('/api/db/likes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ productId: product.id, action: 'add' }),
-        });
-        const json = await res.json();
-        if (!json.error) {
-          setIsLiked(true);
-          setLikes(prev => prev + 1);
+      try {
+        const token = localStorage.getItem('token');
+        if (!isLiked) {
+          const res = await fetch('/api/db/likes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({ productId: product.id, action: 'add' }),
+          });
+          const json = await res.json();
+          if (!json.error) {
+            setIsLiked(true);
+            setLikes(prev => prev + 1);
+          }
+        } else {
+          const res = await fetch('/api/db/likes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({ productId: product.id, action: 'remove' }),
+          });
+          const json = await res.json();
+          if (!json.error) {
+            setIsLiked(false);
+            setLikes(prev => Math.max(0, prev - 1));
+          }
         }
-      } else {
-        const res = await fetch('/api/db/likes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-          body: JSON.stringify({ productId: product.id, action: 'remove' }),
-        });
-        const json = await res.json();
-        if (!json.error) {
-          setIsLiked(false);
-          setLikes(prev => Math.max(0, prev - 1));
-        }
+      } catch {
+        toast({ variant: 'destructive', title: 'Failed to update like', description: 'Network error. Please try again.' });
       }
     });
   };
 
   const handleAddToCart = async () => {
     handleAuthAction(async () => {
-      const role = localStorage.getItem('userRole');
-      if (role === 'artisan' || role === 'admin') {
+      if (user?.role === 'artisan' || user?.role === 'admin') {
         toast({ variant: 'destructive', title: 'Not allowed', description: 'Artists/Admins cannot add to cart.' });
         return;
       }
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/db/carts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ action: 'add', product }),
-      });
-      const json = await res.json();
-      if (json.error) {
-        toast({ variant: 'destructive', title: 'Failed to add to cart' });
-        return;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/db/carts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ action: 'add', product }),
+        });
+        const json = await res.json();
+        if (json.error) {
+          toast({ variant: 'destructive', title: 'Failed to add to cart' });
+          return;
+        }
+        window.dispatchEvent(new Event('cartUpdated'));
+        toast({ title: 'Added to Cart!', description: `${product.name} added to your cart.` });
+      } catch {
+        toast({ variant: 'destructive', title: 'Failed to add to cart', description: 'Network error. Please try again.' });
       }
-      window.dispatchEvent(new Event('cartUpdated'));
-      toast({ title: 'Added to Cart!', description: `${product.name} added to your cart.` });
     });
   };
 
   const handleAddComment = async () => {
     if (!commentText.trim()) return;
     handleAuthAction(async () => {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/db/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ productId: product.id, text: commentText }),
-      });
-      const json = await res.json();
-      if (!json.error) {
-        const name = user?.name || 'You';
-        setComments(prev => [{ user: name, text: commentText, id: json.id }, ...prev]);
-        setCommentText("");
-        toast({ title: "Comment posted!" });
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/db/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ productId: product.id, text: commentText }),
+        });
+        const json = await res.json();
+        if (!json.error) {
+          const name = user?.name || 'You';
+          setComments(prev => [{ user: name, text: commentText, id: json.id }, ...prev]);
+          setCommentText("");
+          toast({ title: "Comment posted!" });
+        } else {
+          toast({ variant: 'destructive', title: 'Failed to post comment' });
+        }
+      } catch {
+        toast({ variant: 'destructive', title: 'Failed to post comment', description: 'Network error. Please try again.' });
       }
     });
   };

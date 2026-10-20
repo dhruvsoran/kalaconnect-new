@@ -42,7 +42,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
+  if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH' || request.method === 'DELETE') {
     if (origin && !isAllowedOrigin(origin)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
