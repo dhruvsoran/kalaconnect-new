@@ -133,12 +133,3 @@ export async function sendVerificationEmail(email: string, token: string, name?:
     return false;
   }
 }
-
-export async function cleanupExpiredTokens(): Promise<number> {
-  const db = await getDb();
-  const tokens = db.collection('verificationTokens');
-  const result = await tokens.deleteMany({
-    expiresAt: { $lt: new Date() },
-  });
-  return result.deletedCount || 0;
-}

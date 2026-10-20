@@ -6,8 +6,6 @@ import {
   useInView,
   useMotionValue,
   useSpring,
-  useTransform,
-  useScroll,
   HTMLMotionProps,
 } from "framer-motion";
 
@@ -120,35 +118,6 @@ export function StaggerItem({
       }}
       className={className}
       {...props}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-interface ParallaxProps {
-  children: ReactNode;
-  className?: string;
-  speed?: number;
-  direction?: "vertical" | "horizontal";
-}
-
-export function Parallax({
-  children,
-  className,
-  speed = 0.3,
-  direction = "vertical",
-}: ParallaxProps) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, speed * -200]);
-  const x = useTransform(scrollYProgress, [0, 1], [0, speed * -200]);
-
-  return (
-    <motion.div
-      ref={ref}
-      className={className}
-      style={direction === "vertical" ? { y } : { x }}
     >
       {children}
     </motion.div>

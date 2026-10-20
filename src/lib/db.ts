@@ -54,7 +54,7 @@ export interface Order {
   updatedAt: Date;
 }
 
-export interface OrderItem {
+interface OrderItem {
   productId: string;
   productName: string;
   artisanId: string;
@@ -64,7 +64,7 @@ export interface OrderItem {
   quantity: number;
 }
 
-export interface ShippingInfo {
+interface ShippingInfo {
   name: string;
   address: string;
   city: string;
@@ -72,7 +72,7 @@ export interface ShippingInfo {
   phone?: string;
 }
 
-export interface StatusUpdate {
+interface StatusUpdate {
   status: string;
   timestamp: Date;
   updatedBy: string;

@@ -2,7 +2,7 @@ const INDEXNOW_KEY = process.env.INDEXNOW_KEY || '';
 const BASE_URL = 'https://www.kalaconnect.me';
 const BING_ENDPOINT = 'https://api.bing.com/indexnow';
 
-export async function submitToBing(urls: string | string[]): Promise<boolean> {
+async function submitToBing(urls: string | string[]): Promise<boolean> {
   if (!INDEXNOW_KEY || process.env.NODE_ENV === 'development') {
     if (process.env.NODE_ENV === 'development') {
       console.log('[IndexNow] Skipping Bing submission in development mode');

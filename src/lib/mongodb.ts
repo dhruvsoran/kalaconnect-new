@@ -10,7 +10,7 @@ if (!uri) {
 let cachedClient: MongoClient | null = null;
 let indexesEnsured = false;
 
-export async function getMongoClient() {
+async function getMongoClient() {
   if (cachedClient) return cachedClient;
   const client = new MongoClient(uri);
   await client.connect();
@@ -38,5 +38,3 @@ export async function getDb(dbNameOverride?: string) {
   await ensureIndexes(db);
   return db;
 }
-
-export default getMongoClient;

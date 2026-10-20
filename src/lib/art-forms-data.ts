@@ -135,10 +135,6 @@ export const artForms: ArtForm[] = [
   },
 ];
 
-export const artFormCategories = [
-  { name: 'Paintings', slugs: ['madhubani', 'warli', 'tanjore', 'pichwai', 'rajasthani-miniatures'] },
-  { name: 'Textiles', slugs: ['kalamkari'] },
-];
 
 export function getArtFormBySlug(slug: string): ArtForm | undefined {
   return artForms.find(a => a.slug === slug);

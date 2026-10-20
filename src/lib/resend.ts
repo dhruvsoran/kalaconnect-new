@@ -20,4 +20,3 @@ if (!RESEND_API_KEY) {
 }
 
 export const SENDER_EMAIL = 'hello@kalaconnect.me';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';

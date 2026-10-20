@@ -1,4 +1,4 @@
-export const KNOWLEDGE_BASE = [
+const KNOWLEDGE_BASE = [
   {
     id: 'platform-overview',
     title: 'Platform Overview',
