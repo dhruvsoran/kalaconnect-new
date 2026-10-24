@@ -19,11 +19,18 @@ function sanitizeString(value: unknown): string {
 function sanitizeQueryParams(url: URL): Record<string, string> {
   const safe: Record<string, string> = {};
   for (const [key, value] of url.searchParams.entries()) {
-    if (typeof value === 'string' && !value.startsWith('$')) {
-      safe[key] = sanitizeString(value);
-    }
+    // Reject operator-style keys AND operator-style values ($ne, $gt, $where …)
+    if (key.includes('$') || value.startsWith('$') || value.includes('$')) continue;
+    safe[key] = sanitizeString(value);
   }
   return safe;
+}
+
+// Reject oversized JSON payloads early (the 10 MB server-action limit must not
+// become a route-handler DoS vector)
+function isPayloadTooLarge(req: Request): boolean {
+  const len = req.headers.get('content-length');
+  return !!len && parseInt(len) > 200 * 1024;
 }
 
 async function logToDB(level: string, category: string, message: string, details?: string, extra?: Record<string, any>) {
@@ -189,6 +196,11 @@ async function handlePostOrders(col: any, requester: any, body: any) {
   if (!requester) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const now = new Date();
 
+  // Cap order size: abuse-resistant ceiling on items per order
+  if (Array.isArray(body.items) && body.items.length > 50) {
+    return NextResponse.json({ error: 'Order exceeds maximum of 50 items' }, { status: 400 });
+  }
+
   // Re-derive prices server-side from the products collection — never trust
   // client-supplied amounts (artisan revenue & admin dashboards derive from these)
   if (Array.isArray(body.items)) {
@@ -294,6 +306,11 @@ async function handlePostCarts(col: any, requester: any, body: any) {
     safeProduct.name = sanitizeString(body.product.name || '');
     safeProduct.price = typeof body.product.price === 'number' ? body.product.price : 0;
     safeProduct.image = sanitizeString(body.product.image || '');
+    // Anti-growth: refuse to accumulate unlimited distinct items (cap 50, dedup keeps memory sane)
+    const cart = await col.findOne({ userId }, { projection: { items: { name: 1 } } });
+    if (cart && !cart.items?.some((i: any) => i.name === safeProduct.name) && cart.items.length >= 50) {
+      return NextResponse.json({ error: 'Cart full' }, { status: 400 });
+    }
     await col.findOneAndUpdate(
       { userId },
       { $addToSet: { items: safeProduct }, $setOnInsert: { userId, createdAt: new Date() } },
@@ -313,6 +330,10 @@ async function handlePostCarts(col: any, requester: any, body: any) {
   }
 
   if (Array.isArray(body.items)) {
+    // Cap cart size to match the order cap
+    if (body.items.length > 50) {
+      return NextResponse.json({ error: 'Cart exceeds maximum of 50 items' }, { status: 400 });
+    }
     const sanitizedItems = body.items.map((item: any) => ({
       productId: sanitizeString(item.productId),
       productName: sanitizeString(item.productName),
@@ -392,6 +413,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ collect
   const { collection } = await params;
   if (!ALLOWED_COLLECTIONS.includes(collection)) {
     return NextResponse.json({ error: 'Collection not accessible' }, { status: 403 });
+  }
+  if (isPayloadTooLarge(req)) {
+    return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
   }
   const body = await req.json();
   const db = await getDb();

@@ -89,6 +89,12 @@ export async function POST(req: Request) {
     token,
     user: { id: userId, email: user.email, name: user.name || null, role: userRole, emailVerified: user.emailVerified !== false },
   });
-  res.cookies.set('auth_token', token, { httpOnly: true, path: '/', maxAge: 60 * 60 * 24 * 7 });
+  res.cookies.set('auth_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/',
+  });
   return res;
 }

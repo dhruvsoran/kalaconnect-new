@@ -46,6 +46,14 @@ export function middleware(request: NextRequest) {
     if (origin && !isAllowedOrigin(origin)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    // Token equality: when the browser supplied a _csrf cookie, the request
+    // must echo the same value — blocks mismatched-token CSRF variants
+    const headerToken = request.headers.get('x-csrf-token');
+    const cookieToken = request.cookies.get('_csrf')?.value;
+    if (cookieToken && headerToken && headerToken !== cookieToken) {
+      return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
+    }
   }
 
   response.headers.set('X-Content-Type-Options', 'nosniff');
